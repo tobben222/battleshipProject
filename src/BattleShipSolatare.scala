@@ -1,32 +1,23 @@
 object BattleShipSolatare extends App {
-  class Square(xNumber:Int,yNumber:Int,
-               values:List[Char] = List('?','-','S','A','V','<','>','+','*'),
-               solved:Boolean=false){
-    val x = xNumber;
-    val y = yNumber;
-    val possibleValues = values;
-    val isSolved = solved;
+  val fileName = getClass.getResourceAsStream("/puzzle.txt");
+  import scala.io.Source;
+  val lines = Source.fromInputStream(fileName).getLines()
 
-    def setValue(solution:Char):Square = {
-      return new Square(x,y,List(solution),true);
-    }
-    def removeValue(wrongSolution:Int):Square = {
-      val newList = this.possibleValues.filter(_ != wrongSolution);
-      if(newList.length > 1)
-        return new Square(x,y,newList,false);
-      else
-        return new Square(x,y,newList,true);
-    }
-    def getCorrectValue():Char = {
-      if(this.isSolved)
-      {
-        return this.possibleValues(0);
-      }
-      else
-      {
-        return 0
-      }
-    }
+  val nrOfPuzzlesString = lines.next();
+  val nrOfPuzzleParts = nrOfPuzzlesString split " ";
+  var allPuzzles:List[Puzzle] = List();
+
+  for( i <- 1 to nrOfPuzzleParts(1).toInt)
+  {
+    val sizexsize = lines.next() split " "(0);
+    val size = sizexsize(1) split "x"(0);
+    val restInt = 4+ size(0).toInt;
+    var restOfPuzzle:List[String] = List();
+
+    for(a <-  1 to restInt)
+      restOfPuzzle = restOfPuzzle :+ lines.next();
+    val puzzle = new Puzzle(size(0).toInt,restOfPuzzle);
+    allPuzzles = allPuzzles :+ puzzle;
   }
 
   var allSquares = List[Square]();

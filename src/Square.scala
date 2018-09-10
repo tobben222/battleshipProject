@@ -1,4 +1,4 @@
-class Square(xNumber:Int,yNumber:Int, values:List[Char] = List('?','-','S','A','V','<','>','+','*'), solved:Boolean=false){
+class Square(xNumber:Int,yNumber:Int, values:List[Char] = List('-','S'), solved:Boolean=false){
 
   val x = xNumber;
   val y = yNumber;

@@ -173,7 +173,7 @@ object BattleShipSolatare extends App {
           return true
         }
       }//cheking x on right
-      
+
 
       return false;
     }

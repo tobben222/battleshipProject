@@ -96,42 +96,60 @@ object BattleShipSolatare extends App {
 
     def isValid(x:Int,y:Int,solution:Char):Boolean = {
       val box = getSquare(x,y);
-      val corners = checkCorners(box);
-      val room = roomForMore(box);
-
-      if(!room && solution == 'S')return false;
-
-      if(corners && solution == 'S')
-        return false;
+      val mbWater = MustBeWater(box);
+      val mbBoat = MustBeBoat(box);
 
 
-
+      if(!mbWater && solution == 'S')return false;
+      if(!mbBoat && solution == '-')return false;
+      if(sInCorner(box) && solution == 'S')return false;
 
       return true;
     }
 
 
-    def roomForMore(box:Square):Boolean =
+    def MustBeWater(box:Square):Boolean =
     {
       var yCounter  = 0;
       var xCounter = 0;
 
       for(size <- 0 to puzzle.size -1)
       {
-        if(getSquare(size,box.y).isSolved && getSquare(size,box.y).possibleValues(0) == 'S') xCounter = xCounter +1;
-        if(getSquare(box.x,size).isSolved && getSquare(box.x,size).possibleValues(0) == 'S') yCounter = yCounter +1;
+        if(getSquare(size,box.y).isSolved && getSquare(size,box.y).possibleValues(0) == 'S') yCounter = yCounter +1;
+        if(getSquare(box.x,size).isSolved && getSquare(box.x,size).possibleValues(0) == 'S') xCounter = xCounter +1;
       }
-
       if(yCounter == puzzle.vertical(box.y))return false;
       if(xCounter == puzzle.horizontal(box.x))return false;
 
-      //if()
-
       return true
     }
+    def MustBeBoat(box:Square):Boolean =
+    {
+
+      var yBoatCounter  = 0;
+      var ySeeCounter = 0;
+
+      var xBoatCounter = 0;
+      var xSeeCounter = 0;
+
+      for(size <- 0 to puzzle.size -1)
+      {
+        if(getSquare(size,box.y).isSolved && getSquare(size,box.y).possibleValues(0) == 'S') yBoatCounter = yBoatCounter +1;
+        if(getSquare(box.x,size).isSolved && getSquare(box.x,size).possibleValues(0) == 'S') xBoatCounter = xBoatCounter +1;
+        if(getSquare(size,box.y).isSolved && getSquare(size,box.y).possibleValues(0) == '-') ySeeCounter = ySeeCounter +1;
+        if(getSquare(box.x,size).isSolved && getSquare(box.x,size).possibleValues(0) == '-') xSeeCounter = xSeeCounter +1;
+      }
+      val emptyX = puzzle.size - (xSeeCounter + xBoatCounter);
+      val emptyY = puzzle.size - (ySeeCounter + yBoatCounter);
+      if(puzzle.hints(box.x) == xBoatCounter + emptyX)return true;
+
+      if(puzzle.hints(box.y) == yBoatCounter + emptyY) return true;
 
 
-    def checkCorners(box:Square):Boolean = //cheks if there are ships in its corners
+      return false;
+    }
+
+    def sInCorner(box:Square):Boolean = //cheks if there are ships in its corners
     {
       if(box.x > 0 && box.x < puzzle.size -1)
       {

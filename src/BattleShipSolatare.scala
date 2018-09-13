@@ -20,73 +20,220 @@ object BattleShipSolatare extends App {
     allPuzzles = allPuzzles :+ puzzle;
   }
 
-  var allSquares = List[Square]();
-
-  for(xValue <- List(1,2,3,4,5,6,7)) //TODO replace with variable form file
+  val possible = List('S','-');
+  for( puzzle <-allPuzzles)
   {
-    for(yValue <- List(1,2,3,4,5,6,7))
+    var allSquares = List[Square]();
+    for(xValue <- 0 to puzzle.size -1)
     {
-      val s = new Square(xValue,yValue)
-      allSquares = allSquares :+ s;
-    }
-  }
+      for(yValue <- 0 to puzzle.size -1)
+      {
+        val s = new Square(xValue,yValue)
+        allSquares = allSquares :+ s;
 
-  def getAllFromX(x:Int):List[Square] = {
-    return allSquares.filter((s:Square) => s.x==x)
-  }
-  def getAllFromY(y:Int):List[Square] = {
-    return allSquares.filter((s:Square) => s.y==y)
-  }
-  def getSquare(x:Int,y:Int):Square = {
-    return allSquares.filter(_.x==x).filter(_.y==y)(0);
-  }
-  def setValue(x:Int,y:Int,solution:Char):Boolean = {
-    val s = getSquare(x,y);
-    if(s.getCorrectValue()==solution){
-      return false;
-    }
-    else{
-      allSquares = allSquares.filter(_ !=s);
-      val s2 = s.setValue(solution);
-      allSquares = allSquares :+ s2;
-      return true;
-    }
-  }
+        if(puzzle.hints(xValue)(yValue) != '?')
+        {
+          if(puzzle.hints(xValue)(yValue) == '-') {
+            allSquares = allSquares.filter(_ != s);
+            val s2 = s.removeValue('S');
+            allSquares = allSquares :+ s2;
+          }else
+          {2
+            allSquares = allSquares.filter(_ != s);
+            val s2 = s.removeValue('-');
+            allSquares = allSquares :+ s2;
+          }
+        }
 
-  def removeValue(x:Int,y:Int,wrongSolution:Char) = {
-    val s = getSquare(x,y);
-    allSquares = allSquares.filter(_ !=s);
-    val s2 = s.removeValue(wrongSolution);
-    allSquares = allSquares :+ s2;
-  }
-
-  def printIt() = {
-    implicit def intToSqrt = ((x:Double) => x.toInt)
-    val size = scala.math.sqrt(allSquares.length)
-    for(x<-1 to size){
-      val values = for(y<-1 to size) yield getSquare(x,y).possibleValues
-      println(values.map(i=> if(i.length == 1) i(0) else "_").mkString(" "));
+      }
     }
-  }
+    //before enything
+    //println("Puzzle");
+    printIt();
+    println("");
 
-  def isValid(x:Int,y:Int,solution:Char):Boolean = {
-    for(s<- getAllFromX(x):::getAllFromY(y))
+    // apply rules
+
+    // bruteforce
+    bruteForce(puzzle);
+    println("After Brute Force");
+    printIt();
+
+    println("");
+    println("");
+
+
+
+    def bruteForce(p:Puzzle): Unit =
     {
-      var oneSquare = s.asInstanceOf[Square];
-      if(x != oneSquare.x || y!=oneSquare.y){
-        if(oneSquare.isSolved && oneSquare.possibleValues(0)==solution){
-          return false;
+      for(x<- 0 to p.size -1){
+        for(y<- 0 to p.size -1){
+          for(s<- List('S','-')){
+            reomveIfNotValied(x,y,s);
+          }
         }
       }
     }
-    return true;
-  }
 
-  def reomveIfNotValied(x:Int,y:Int,solution:Char): Unit ={
-    if(!isValid(x,y,solution)){
-      removeValue(x,y,solution);
+
+    def reomveIfNotValied(x:Int,y:Int,solution:Char): Unit ={
+      if(!isValid(x,y,solution)){
+        removeValue(x,y,solution);
+      }
+
+    }
+
+    def removeValue(x:Int,y:Int,wrongSolution:Char) = {
+      val s = getSquare(x,y);
+      if(!s.isSolved)
+      {
+        allSquares = allSquares.filter(_ !=s);
+        val s2 = s.removeValue(wrongSolution);
+        allSquares = allSquares :+ s2;
+      }
+
+    }
+
+    def isValid(x:Int,y:Int,solution:Char):Boolean = {
+      val box = getSquare(x,y);
+      val corners = checkCorners(box);
+      val room = roomForMore(box);
+
+      if(!room && solution == 'S')return false;
+
+      if(corners && solution == 'S')return false;
+
+
+
+
+
+      return true;
+      }
+
+
+
+    def roomForMore(box:Square):Boolean =
+    {
+      var yCounter  = 0;
+      var xCounter = 0;
+
+      for(size <- 0 to puzzle.size -1)
+      {
+        if(getSquare(size,box.y).isSolved && getSquare(size,box.y).possibleValues(0) == 'S') xCounter = xCounter +1;
+        if(getSquare(box.x,size).isSolved && getSquare(box.x,size).possibleValues(0) == 'S') yCounter = yCounter +1;
+      }
+
+      if(yCounter == puzzle.vertical(box.y))return false;
+      if(xCounter == puzzle.horizontal(box.x))return false;
+
+      //if()
+
+      return true
+    }
+
+
+    def checkCorners(box:Square):Boolean = //cheks if there are ships in its corners
+    {
+      if(box.x > 0 && box.x < puzzle.size -1)
+      {
+        if(box.y > 0 && box.y < puzzle.size -1)
+        {
+          val leftTop     = getSquare(box.x -1,box.y -1)
+          val letBottom   = getSquare(box.x -1,box.y +1)
+          val rightTop    = getSquare(box.x +1,box.y -1)
+          val rightBottom = getSquare(box.x +1,box.y +1)
+          if((leftTop.isSolved && leftTop.possibleValues(0) == 'S') ||
+          (letBottom.isSolved && letBottom.possibleValues(0) == 'S') ||
+          (rightTop.isSolved && rightTop.possibleValues(0) == 'S') ||
+          (rightBottom.isSolved && rightBottom.possibleValues(0) == 'S'))
+          {
+            //println("found one")
+            return true;
+          }
+
+        }
+      }//done cheking middle
+      if(box.x == 0 && box.y != 0 && box.y != puzzle.size -1)
+      {
+        val rightTop    = getSquare(box.x +1,box.y -1)
+        val rightBottom = getSquare(box.x +1,box.y +1)
+        if((rightTop.isSolved && rightTop.possibleValues(0) == 'S') ||
+          (rightBottom.isSolved && rightBottom.possibleValues(0) == 'S'))
+        {
+          return true
+        }
+      }//cheking x on left
+
+      if(box.x == puzzle.size -1 && box.y != 0 && box.y != puzzle.size -1)
+      {
+        val leftTop     = getSquare(box.x -1,box.y -1)
+        val leftBottom   = getSquare(box.x -1,box.y +1)
+        if((leftTop.isSolved && leftTop.possibleValues(0) == 'S') ||
+          (leftBottom.isSolved && leftBottom.possibleValues(0) == 'S'))
+        {
+          return true
+        }
+      }//cheking x on right
+
+
+      return false;
+    }
+
+
+    def checkShips(box:Square): Unit = {
+      val counter = puzzle.ships.toList;
+      var temp = counter.distinct;
+        if (box.x.equals('*')) {
+          val t = counter.indexOf(2);
+          counter.indexOf(2,t);
+        }
+      println(temp);
+    }
+
+
+
+    def printIt() = {
+      implicit def intToSqrt = ((x: Double) => x.toInt)
+
+      val size = puzzle.size;
+      for (x <- 0 to size - 1) {
+        val values = for (y <- 0 to size - 1) yield getSquare(x, y).possibleValues
+        println(values.map(i => if (i.length == 1) i(0) else "_").mkString(" "));
+      }
+    }
+
+
+
+    def setValue(x:Int,y:Int,solution:Char):Boolean = {
+      val s = getSquare(x,y);
+      if(s.getCorrectValue()==solution){
+        return false;
+      }
+      else{
+        allSquares = allSquares.filter(_ !=s);
+        val s2 = s.setValue(solution);
+        allSquares = allSquares :+ s2;
+        return true;
+      }
+    }
+
+
+    def getAllFromX(x:Int):List[Square] = {
+      return allSquares.filter((s:Square) => s.x==x)
+    }
+    def getAllFromY(y:Int):List[Square] = {
+      return allSquares.filter((s:Square) => s.y==y)
+    }
+    def getSquare(x:Int,y:Int):Square = {
+      return allSquares.filter(_.x==x).filter(_.y==y)(0);
     }
   }
-
-
 }
+
+
+
+
+
+
+
+

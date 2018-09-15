@@ -3,9 +3,11 @@ object BattleShipSolatare extends App {
   import scala.io.Source;
   val lines = Source.fromInputStream(fileName).getLines()
 
+
   val nrOfPuzzlesString = lines.next();
   val nrOfPuzzleParts = nrOfPuzzlesString split " ";
   var allPuzzles:List[Puzzle] = List();
+
 
   for( i <- 1 to nrOfPuzzleParts(1).toInt)
   {
@@ -18,11 +20,13 @@ object BattleShipSolatare extends App {
       restOfPuzzle = restOfPuzzle :+ lines.next();
     val puzzle = new Puzzle(size(0).toInt,restOfPuzzle);
     allPuzzles = allPuzzles :+ puzzle;
+
   }
 
   val possible = List('S','-');
   for( puzzle <-allPuzzles)
   {
+
     var allSquares = List[Square]();
     for(xValue <- 0 to puzzle.size -1)
     {
@@ -38,7 +42,7 @@ object BattleShipSolatare extends App {
             val s2 = s.removeValue('S');
             allSquares = allSquares :+ s2;
           }else
-          {2
+          {
             allSquares = allSquares.filter(_ != s);
             val s2 = s.removeValue('-');
             allSquares = allSquares :+ s2;
@@ -47,6 +51,7 @@ object BattleShipSolatare extends App {
 
       }
     }
+
     //before enything
     //println("Puzzle");
     printIt();
@@ -61,6 +66,10 @@ object BattleShipSolatare extends App {
 
     println("");
     println("");
+
+
+
+
 
 
 
@@ -113,10 +122,31 @@ object BattleShipSolatare extends App {
       if(!mbWater && solution == 'S')return false;
       if(!mbBoat && solution == '-')return false;
       if(sInCorner(box) && solution == 'S')return false;
+      if (!placeShip()) return false;
+
 
       return true;
       }
 
+    // Returns number of legal ships
+    def getShips(): Int = {
+      var puzzleShips = 0;
+      for (l <- allPuzzles) {
+        puzzleShips = l.ships.foldLeft(1)(_+_._2);
+      }
+      return puzzleShips;
+    }
+
+    def placeShip():Boolean = {
+      var counter = 0;
+      for (l <- allSquares) {
+        if (l.getCorrectValue().equals('S')) {
+          if (counter < getShips()) counter = counter +1;
+          return true;
+        }
+      }
+      return false;
+    }
 
 
     def MustBeWater(box:Square):Boolean =
@@ -208,18 +238,6 @@ object BattleShipSolatare extends App {
     }
 
 
-    def checkShips(box:Square): Unit = {
-      val counter = puzzle.ships.toList;
-      var temp = counter.distinct;
-        if (box.x.equals('*')) {
-          val t = counter.indexOf(2);
-          counter.indexOf(2,t);
-        }
-      println(temp);
-    }
-
-
-
     def printIt() = {
       implicit def intToSqrt = ((x: Double) => x.toInt)
 
@@ -228,6 +246,7 @@ object BattleShipSolatare extends App {
         val values = for (y <- 0 to size - 1) yield getSquare(x, y).possibleValues
         println(values.map(i => if (i.length == 1) i(0) else "_").mkString(" "));
       }
+
     }
 
 

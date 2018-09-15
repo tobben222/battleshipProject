@@ -4,10 +4,14 @@ class Puzzle(s:Int, information:List[String]) {
   val horizontal = fromStringToIntList(information(1));
   val vertical = fromStringToIntList(information(2));
   val hints = fromStingsToCharList(information.slice(4, s+4));
+  var sumShips = 0;
 
   private def MapOfShips(text:String):Map[Int,Int] =
   {
     val whioutSpace = text split " ";
+
+
+
     val whitoutWord = whioutSpace.slice(1,whioutSpace.length);
     var map:Map[Int,Int] = Map();
     for(i <- 0 to whitoutWord.length- 1)
@@ -19,6 +23,7 @@ class Puzzle(s:Int, information:List[String]) {
 
     return map;
   }
+
 
   private def fromStringToIntList(text:String):List[Int] =
   {

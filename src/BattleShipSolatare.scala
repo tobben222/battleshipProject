@@ -9,6 +9,7 @@ object BattleShipSolatare extends App {
   var allPuzzles:List[Puzzle] = List();
 
 
+
   for( i <- 1 to nrOfPuzzleParts(1).toInt)
   {
     val sizexsize = lines.next() split " "(0);
@@ -47,10 +48,16 @@ object BattleShipSolatare extends App {
             val s2 = s.removeValue('-');
             allSquares = allSquares :+ s2;
           }
+
         }
 
+
       }
+
     }
+    println(getShips())
+
+    println(puzzle.sumShips)
 
     //before enything
     //println("Puzzle");
@@ -130,18 +137,16 @@ object BattleShipSolatare extends App {
 
     // Returns number of legal ships
     def getShips(): Int = {
-      var puzzleShips = 0;
-      for (l <- allPuzzles) {
-        puzzleShips = l.ships.foldLeft(1)(_+_._2);
-      }
-      return puzzleShips;
+      return puzzle.sumShips;
     }
 
+
+    // Checks that amount of legal ships is greater than placed ships
     def placeShip():Boolean = {
       var counter = 0;
       for (l <- allSquares) {
         if (l.getCorrectValue().equals('S')) {
-          if (counter < getShips()) counter = counter +1;
+          if (counter < getShips()) counter = counter + 1;
           return true;
         }
       }

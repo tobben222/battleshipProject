@@ -9,9 +9,6 @@ class Puzzle(s:Int, information:List[String]) {
   private def MapOfShips(text:String):Map[Int,Int] =
   {
     val whioutSpace = text split " ";
-
-
-
     val whitoutWord = whioutSpace.slice(1,whioutSpace.length);
     var map:Map[Int,Int] = Map();
     for(i <- 0 to whitoutWord.length- 1)
@@ -21,8 +18,15 @@ class Puzzle(s:Int, information:List[String]) {
       map += (seperated(0).toInt -> seperated(1).toInt);
     }
 
+    for (l <- map) {
+      sumShips += (l._1 * l._2);
+    }
+
+    println(sumShips)
+
     return map;
   }
+
 
 
   private def fromStringToIntList(text:String):List[Int] =

@@ -107,22 +107,99 @@ object BattleShipSolatare extends App {
       if(!MustBeWater(box) && solution == 'S')return false;
       if(!MustBeBoat(box) && solution == '-')return false;
       if(sInCorner(box) && solution == 'S')return false;
-
-      if (!placeShip()) return false;
+      if(!romeForShip(solution,box)) return false;
 
 
       return true;
       }
     // Checks that amount of legal ships is greater than placed ships
-    def placeShip():Boolean = {
-      var counter = 0;
-      for (l <- allSquares) {
-        if (l.getCorrectValue().equals('S')) {
-          if (counter < puzzle.sumShips) counter = counter + 1;
-          return true;
+    def romeForShip(solution:Char,box:Square):Boolean = {
+      if(solution == 'S' &&(CanPlaceMoreShips() || nextToShip(box)))return true
+
+      return false;
+    }
+
+    def CanPlaceMoreShips():Boolean = //true if there are fever ships than given
+    {
+      val shipParts = allSquares.filter(x => x.isSolved && x.possibleValues(0) == 'S')
+
+      val shipPartsNumber = trimList(shipParts);
+
+      if(shipPartsNumber == puzzle.sumShips)
+      {
+        return true
+      }
+
+      return false;
+    }
+
+
+    def trimList(ships:List[Square]):Int = //trims list removing one square if it is next to another one(but not the other one)
+    {
+      var newList = ships;
+      var nr = 0;
+/*
+        for(s <- ships)
+        {
+          val nextTo = getSNextTo(s);
+          newList = newList diff nextTo
+          nr = nr+1
+        }
+
+*/
+      return nr;
+    }
+
+    def getSNextTo(box:Square): List[Square] =
+    {
+      var S:List[Square] = List[Square]();
+      if(box.x < puzzle.size - 1) //checking right
+      {
+        if(getSquare(box.x +1,box.y).isSolved && getSquare(box.x +1,box.y).possibleValues(0) == 'S')S = S :+ getSquare(box.x +1,box.y);
+      }
+      if(box.x > 0) // checking left
+      {
+        if(getSquare(box.x -1,box.y).isSolved && getSquare(box.x -1,box.y).possibleValues(0) == 'S') S = S :+ getSquare(box.x -1,box.y);
+      }
+      if(box.y < puzzle.size - 1) //checking bottom
+      {
+        if(getSquare(box.x,box.y +1).isSolved && getSquare(box.x ,box.y +1).possibleValues(0) == 'S') S = S :+ getSquare(box.x ,box.y +1);
+      }
+      if(box.x > 0) //checking top
+      {
+        if(getSquare(box.x ,box.y -1).isSolved && getSquare(box.x ,box.y -1).possibleValues(0) == 'S') S = S :+ getSquare(box.x ,box.y-1);
+      }
+
+      if(S.length > 1)
+      {
+        for(square <- S)
+        {
+          S = S :+ getSNextTo(square)
         }
       }
-      return false;
+
+      return S.distinct;
+    }
+    def nextToShip(box:Square):Boolean =
+    {
+      if(box.x < puzzle.size - 1) //checking right
+      {
+        if(getSquare(box.x +1,box.y).isSolved && getSquare(box.x +1,box.y).possibleValues(0) == 'S')return true;
+      }
+      if(box.x > 0) // checking left
+      {
+        if(getSquare(box.x -1,box.y).isSolved && getSquare(box.x -1,box.y).possibleValues(0) == 'S')return true;
+      }
+      if(box.y < puzzle.size - 1) //checking bottom
+      {
+        if(getSquare(box.x,box.y +1).isSolved && getSquare(box.x ,box.y +1).possibleValues(0) == 'S')return true;
+      }
+      if(box.x > 0) //checking top
+      {
+        if(getSquare(box.x ,box.y -1).isSolved && getSquare(box.x ,box.y -1).possibleValues(0) == 'S')return true;
+      }
+
+      return false
     }
 
 

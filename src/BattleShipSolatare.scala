@@ -138,15 +138,20 @@ object BattleShipSolatare extends App {
     {
       var newList = ships;
       var nr = 0;
-/*
-        for(s <- ships)
+
+      while(newList.length > 0)
+      {
+        val nextTo = getSNextTo(newList(0));
+        if(nextTo.size == 0)
         {
-          val nextTo = getSNextTo(s);
+          newList = newList.filter(_ != newList(0));
+        }else
+        {
           newList = newList diff nextTo
-          nr = nr+1
         }
 
-*/
+        nr = nr+1
+      }
       return nr;
     }
 
@@ -170,11 +175,11 @@ object BattleShipSolatare extends App {
         if(getSquare(box.x ,box.y -1).isSolved && getSquare(box.x ,box.y -1).possibleValues(0) == 'S') S = S :+ getSquare(box.x ,box.y-1);
       }
 
-      if(S.length > 1)
+      if(S.size > 1)
       {
         for(square <- S)
         {
-          S = S :+ getSNextTo(square)
+          S = S ::: getSNextTo(square)
         }
       }
 

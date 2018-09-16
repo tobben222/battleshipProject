@@ -103,13 +103,9 @@ object BattleShipSolatare extends App {
 
     def isValid(x:Int,y:Int,solution:Char):Boolean = {
       val box = getSquare(x,y);
-      val mbWater = MustBeWater(box);
-      val mbBoat = MustBeBoat(box);
-
-
-
-      if(!mbWater && solution == 'S')return false;
-      if(!mbBoat && solution == '-')return false;
+      
+      if(!MustBeWater(box) && solution == 'S')return false;
+      if(!MustBeBoat(box) && solution == '-')return false;
       if(sInCorner(box) && solution == 'S')return false;
 
       if (!placeShip()) return false;

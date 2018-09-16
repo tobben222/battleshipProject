@@ -48,19 +48,12 @@ object BattleShipSolatare extends App {
             val s2 = s.removeValue('-');
             allSquares = allSquares :+ s2;
           }
-
         }
-
-
       }
-
     }
-    println(getShips())
 
-    println(puzzle.sumShips)
-
-    //before enything
-    //println("Puzzle");
+    //before everything
+    println("Puzzle")
     printIt();
     println("");
 
@@ -73,8 +66,6 @@ object BattleShipSolatare extends App {
 
     println("");
     println("");
-
-
 
 
 
@@ -112,15 +103,6 @@ object BattleShipSolatare extends App {
 
     def isValid(x:Int,y:Int,solution:Char):Boolean = {
       val box = getSquare(x,y);
-
-      //val corners = checkCorners(box);
-      //val room = roomForMore(box);
-
-      //if(!room && solution == 'S')return false;
-
-      //if(corners && solution == 'S')return false;
-
-
       val mbWater = MustBeWater(box);
       val mbBoat = MustBeBoat(box);
 
@@ -129,24 +111,18 @@ object BattleShipSolatare extends App {
       if(!mbWater && solution == 'S')return false;
       if(!mbBoat && solution == '-')return false;
       if(sInCorner(box) && solution == 'S')return false;
+
       if (!placeShip()) return false;
 
 
       return true;
       }
-
-    // Returns number of legal ships
-    def getShips(): Int = {
-      return puzzle.sumShips;
-    }
-
-
     // Checks that amount of legal ships is greater than placed ships
     def placeShip():Boolean = {
       var counter = 0;
       for (l <- allSquares) {
         if (l.getCorrectValue().equals('S')) {
-          if (counter < getShips()) counter = counter + 1;
+          if (counter < puzzle.sumShips) counter = counter + 1;
           return true;
         }
       }
@@ -197,51 +173,93 @@ object BattleShipSolatare extends App {
 
     def sInCorner(box:Square):Boolean = //cheks if there are ships in its corners
     {
-      if(box.x > 0 && box.x < puzzle.size -1)
+      if (box.x == puzzle.size - 1) println("test")
+      if (box.x > 0 && box.x < puzzle.size - 1 && box.y > 0 && box.y < puzzle.size - 1) // is in the middle
       {
-        if(box.y > 0 && box.y < puzzle.size -1)
-        {
-          val leftTop     = getSquare(box.x -1,box.y -1)
-          val letBottom   = getSquare(box.x -1,box.y +1)
-          val rightTop    = getSquare(box.x +1,box.y -1)
-          val rightBottom = getSquare(box.x +1,box.y +1)
-          if((leftTop.isSolved && leftTop.possibleValues(0) == 'S') ||
-          (letBottom.isSolved && letBottom.possibleValues(0) == 'S') ||
+        val leftTop = getSquare(box.x - 1, box.y - 1)
+        val leftBottom = getSquare(box.x + 1, box.y - 1)
+        val rightTop = getSquare(box.x - 1, box.y + 1)
+        val rightBottom = getSquare(box.x + 1, box.y + 1)
+
+        if ((leftTop.isSolved && leftTop.possibleValues(0) == 'S') ||
+          (leftBottom.isSolved && leftBottom.possibleValues(0) == 'S') ||
           (rightTop.isSolved && rightTop.possibleValues(0) == 'S') ||
-          (rightBottom.isSolved && rightBottom.possibleValues(0) == 'S'))
-          {
-            //println("found one")
-            return true;
-          }
-
-        }
-      }//done cheking middle
-      if(box.x == 0 && box.y != 0 && box.y != puzzle.size -1)
+          (rightBottom.isSolved && rightBottom.possibleValues(0) == 'S')) return true
+      }
+      if (box.x == 0 && box.y > 0 && box.y < puzzle.size - 1) //is at the top middle
       {
-        val rightTop    = getSquare(box.x +1,box.y -1)
-        val rightBottom = getSquare(box.x +1,box.y +1)
-        if((rightTop.isSolved && rightTop.possibleValues(0) == 'S') ||
-          (rightBottom.isSolved && rightBottom.possibleValues(0) == 'S'))
-        {
-          return true
-        }
-      }//cheking x on left
+        val leftBottom = getSquare(box.x + 1, box.y - 1)
+        val rightBottom = getSquare(box.x + 1, box.y + 1)
 
-      if(box.x == puzzle.size -1 && box.y != 0 && box.y != puzzle.size -1)
+        if ((leftBottom.isSolved && leftBottom.possibleValues(0) == 'S') ||
+          (rightBottom.isSolved && rightBottom.possibleValues(0) == 'S')) {
+          return true;
+        }
+      }
+      if (box.x == puzzle.size - 1 && box.y > 0 && box.y < puzzle.size - 1) //is at the bootom middle
       {
-        val leftTop     = getSquare(box.x -1,box.y -1)
-        val leftBottom   = getSquare(box.x -1,box.y +1)
-        if((leftTop.isSolved && leftTop.possibleValues(0) == 'S') ||
-          (leftBottom.isSolved && leftBottom.possibleValues(0) == 'S'))
-        {
-          return true
+        val leftTop = getSquare(box.x - 1, box.y - 1)
+        val rightTop = getSquare(box.x - 1, box.y + 1)
+
+        if ((leftTop.isSolved && leftTop.possibleValues(0) == 'S') ||
+          (rightTop.isSolved && rightTop.possibleValues(0) == 'S')) {
+          return true;
         }
-      }//cheking x on right
+      }
+      if (box.x > 0 && box.x < puzzle.size - 1 && box.y == 0) // is on the middle left
+      {
+        val rightTop = getSquare(box.x - 1, box.y + 1)
+        val rightBottom = getSquare(box.x + 1, box.y + 1)
 
+        if ((rightTop.isSolved && rightTop.possibleValues(0) == 'S') ||
+          (rightBottom.isSolved && rightBottom.possibleValues(0) == 'S')) {
+          return true;
+        }
+      }
+      if (box.x > 0 && box.x < puzzle.size - 1 && box.y == puzzle.size - 1) //is on the middle right
+      {
+        val leftTop = getSquare(box.x - 1, box.y - 1)
+        val leftBottom = getSquare(box.x + 1, box.y - 1)
 
+        if ((leftTop.isSolved && leftTop.possibleValues(0) == 'S') ||
+          (leftBottom.isSolved && leftBottom.possibleValues(0) == 'S')) {
+          return true;
+        }
+      }
+      if (box.x == 0 && box.y == 0) //top left corner
+      {
+        val rightBottom = getSquare(box.x + 1, box.y + 1)
+
+        if (rightBottom.isSolved && rightBottom.possibleValues(0) == 'S') {
+          return true;
+        }
+      }
+      if (box.x == puzzle.size - 1 && box.y == 0) //bottom left corner
+      {
+        val rightTop = getSquare(box.x - 1, box.y + 1)
+
+        if (rightTop.isSolved && rightTop.possibleValues(0) == 'S') {
+          return true;
+        }
+      }
+      if (box.x == 0 && box.y == puzzle.size - 1) //top right corner
+      {
+        val leftBottom = getSquare(box.x + 1, box.y - 1)
+
+        if (leftBottom.isSolved && leftBottom.possibleValues(0) == 'S') {
+          return true;
+        }
+      }
+      if (box.x == puzzle.size - 1 && box.y == puzzle.size - 1) //bottom right corner
+      {
+        val leftTop = getSquare(box.x - 1, box.y - 1)
+
+        if (leftTop.isSolved && leftTop.possibleValues(0) == 'S') {
+          return true;
+        }
+      }
       return false;
     }
-
 
     def printIt() = {
       implicit def intToSqrt = ((x: Double) => x.toInt)
@@ -253,8 +271,6 @@ object BattleShipSolatare extends App {
       }
 
     }
-
-
 
     def setValue(x:Int,y:Int,solution:Char):Boolean = {
       val s = getSquare(x,y);
@@ -268,7 +284,6 @@ object BattleShipSolatare extends App {
         return true;
       }
     }
-
 
     def getAllFromX(x:Int):List[Square] = {
       return allSquares.filter((s:Square) => s.x==x)

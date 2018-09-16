@@ -4,7 +4,7 @@ class Puzzle(s:Int, information:List[String]) {
   val horizontal = fromStringToIntList(information(1));
   val vertical = fromStringToIntList(information(2));
   val hints = fromStingsToCharList(information.slice(4, s+4));
-  var sumShips = 0;
+  val sumShips = NumberOfShips(ships);
 
   private def MapOfShips(text:String):Map[Int,Int] =
   {
@@ -18,13 +18,11 @@ class Puzzle(s:Int, information:List[String]) {
       map += (seperated(0).toInt -> seperated(1).toInt);
     }
 
-    for (l <- map) {
-      sumShips += (l._1 * l._2);
-    }
-
-    println(sumShips)
-
     return map;
+  }
+  private def NumberOfShips(map:Map[Int,Int]): Int =
+  {
+    return map.foldLeft(0.0)(_+_._2).toInt;
   }
 
 

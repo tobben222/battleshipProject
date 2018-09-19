@@ -118,14 +118,40 @@ object BattleShipSolatare extends App {
 
     def isValid(x:Int,y:Int,solution:Char):Boolean = {
       val box = getSquare(x,y);
-      
+      if(x == 0 && y == 4)
+      {
+        println("")
+      }
       if(!MustBeWater(box) && solution == 'S')return false;
-      //if(!MustBeBoat(box)  && solution == '-')return false;
+      if(MustBeBoat(box)  && solution == '-')return false;
+      if(nextToShipPartHint(box) && solution == '-') return false;
       if(sInCorner(box)    && solution == 'S')return false;
       if(!romeForShip(box) && solution == 'S') return false;
 
       return true;
       }
+
+    def nextToShipPartHint(box:Square): Boolean =
+    {
+      if(box.x > 1)
+      {
+        if(puzzle.hints(box.x -1)(box.y) == 'A')return true;
+      }
+      if(box.x < puzzle.size -1)
+      {
+        if(puzzle.hints(box.x +1)(box.y) == 'V')return true;
+      }
+      if(box.y > 1)
+      {
+        if(puzzle.hints(box.x )(box.y -1) == '<')return true;
+      }
+      if(box.y < puzzle.size -1)
+      {
+        if(puzzle.hints(box.x )(box.y +1) == '>')return true;
+      }
+      return false;
+    }
+
     // Checks that amount of legal ships is greater than placed ships
     def romeForShip(box:Square):Boolean = {
       if(CanPlaceMoreShips() || nextToShip(box))return true
@@ -177,17 +203,15 @@ object BattleShipSolatare extends App {
     def getSNextTo(box:Square, boxes:List[Square]): List[Square] =
     {
       var S:List[Square] = List[Square]();
-
+      
       if(box.y < puzzle.size - 1) //checking right
       {
         if(getSquare(box.x , box.y +1).isSolved && getSquare(box.x ,box.y +1).possibleValues(0) == 'S')S = S :+ getSquare(box.x ,box.y +1);
       }
-
       if(box.y > 0) // checking left
       {
-        if(getSquare(box.x ,box.y -1).isSolved && getSquare(box.x -1,box.y).possibleValues(0) == 'S') S = S :+ getSquare(box.x -1,box.y);
+        if(getSquare(box.x ,box.y -1).isSolved && getSquare(box.x ,box.y-1).possibleValues(0) == 'S') S = S :+ getSquare(box.x ,box.y-1);
       }
-
       if(box.x < puzzle.size - 1) //checking bottom
       {
         if(getSquare(box.x +1,box.y).isSolved && getSquare(box.x +1,box.y ).possibleValues(0) == 'S') S = S :+ getSquare(box.x +1,box.y);
@@ -197,7 +221,6 @@ object BattleShipSolatare extends App {
       {
         if(getSquare(box.x -1,box.y).isSolved && getSquare(box.x -1,box.y).possibleValues(0) == 'S') S = S :+ getSquare(box.x -1 ,box.y);
       }
-
       S = S :+ box;
 
       //delete everyting that overlaps between boxes and S
@@ -256,32 +279,34 @@ object BattleShipSolatare extends App {
     }
     def MustBeBoat(box:Square):Boolean =
     {
-
-      var yBoatCounter  = 0;
-      var ySeeCounter = 0;
-
-      var xBoatCounter = 0;
-      var xSeeCounter = 0;
-
       val xLine = getAllFromX(box.x)
       val yLine = getAllFromY(box.y)
 
+      var xS = 0;
+      var xVater = 0
 
+      var yS = 0;
+      var yVater = 0
 
-      for(size <- 0 to puzzle.size -1)
+      for(i <- 0 to puzzle.size -1)
       {
-        if(getSquare(size,box.y).isSolved && getSquare(size,box.y).possibleValues(0) == 'S') yBoatCounter = yBoatCounter +1;
-        if(getSquare(box.x,size).isSolved && getSquare(box.x,size).possibleValues(0) == 'S') xBoatCounter = xBoatCounter +1;
-        if(getSquare(size,box.y).isSolved && getSquare(size,box.y).possibleValues(0) == '-') ySeeCounter = ySeeCounter +1;
-        if(getSquare(box.x,size).isSolved && getSquare(box.x,size).possibleValues(0) == '-') xSeeCounter = xSeeCounter +1;
+        if(xLine(i).isSolved)
+        {
+          if(xLine(i).possibleValues(0) == 'S')xS = xS +1;
+          else{xVater = xVater +1}
+        }
+        if(yLine(i).isSolved)
+        {
+          if(yLine(i).possibleValues(0) == 'S')yS = yS +1;
+          else{yVater = yVater +1}
+        }
       }
-      val emptyX = puzzle.size - (xSeeCounter + xBoatCounter);
-      val emptyY = puzzle.size - (ySeeCounter + yBoatCounter);
-      if(puzzle.hints(box.x) == xBoatCounter + emptyX)return true;
 
-      if(puzzle.hints(box.y) == yBoatCounter + emptyY) return true;
+      val xEmpty = puzzle.size - (xS +xVater)
+      val yEmpty = puzzle.size - (yS +yVater)
 
-
+      if(xEmpty == (puzzle.horizontal(box.x)-xS))return true
+      if(yEmpty == (puzzle.vertical(box.y)-yS))return true
       return false;
     }
 

@@ -113,12 +113,6 @@ object BattleShipSolatare extends App {
 
       def reomveIfNotValied(x:Int,y:Int,solution:Char): Unit =
       {
-        if(x==5 && y == 0)
-        {
-          printIt();
-          println("")
-          println("new")
-        }
         if(!isValid(x,y,solution)){
 
           removeValue(x,y,solution);
@@ -147,7 +141,7 @@ object BattleShipSolatare extends App {
         if(nextToShipPartHint(box) && solution == '-') return false;
         if(WrongsideOfPartHint(box) && solution == 'S') return false;
         if(sInCorner(box)    && solution == 'S')return false;
-        if(romeForShip(box) && solution == '-') return false;
+        if(!romeForShip(box) && solution == 'S') return false;
 
         return true;
       }
@@ -202,6 +196,7 @@ object BattleShipSolatare extends App {
       def romeForShip(box:Square):Boolean =
       {
         if(CanPlaceMoreShips() || nextToShip(box))return true
+        //|| nextToShip(box)
 
         return false;
       }

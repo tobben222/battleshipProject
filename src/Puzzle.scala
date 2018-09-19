@@ -1,8 +1,8 @@
 class Puzzle(s:Int, information:List[String]) {
   val size = s;
   val ships = MapOfShips(information(0));
-  val horizontal = fromStringToIntList(information(1));
-  val vertical = fromStringToIntList(information(2));
+  val horizontal = fromStringToIntList(information(2));
+  val vertical = fromStringToIntList(information(1));
   val hints = fromStingsToCharList(information.slice(4, s+4));
   val sumShips = NumberOfShips(ships);
   val sumShipParts = NumberOfShipParts(vertical);

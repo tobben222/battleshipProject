@@ -73,12 +73,24 @@ object BattleShipSolatare extends App {
 
     def bruteForce(p:Puzzle): Unit =
     {
-      for(x<- 0 to p.size -1){
-        for(y<- 0 to p.size -1){
-          for(s<- List('S','-')){
-            reomveIfNotValied(x,y,s);
-            printIt();
-            println("")
+      var solved = false
+      while(!solved)
+      {
+        for(x<- 0 to p.size -1){
+          for(y<- 0 to p.size -1){
+            for(s<- List('S','-')){
+              reomveIfNotValied(x,y,s);
+              printIt();
+              println("")
+            }
+          }
+        }
+        solved = true;
+        for(s <- allSquares)
+        {
+          if(!s.isSolved)
+          {
+            solved = false
           }
         }
       }
@@ -87,11 +99,9 @@ object BattleShipSolatare extends App {
 
     def reomveIfNotValied(x:Int,y:Int,solution:Char): Unit ={
       if(!isValid(x,y,solution)){
-        print("1 ")
         removeValue(x,y,solution);
       }
 
-      println(" 2")
 
     }
 
@@ -110,7 +120,7 @@ object BattleShipSolatare extends App {
       val box = getSquare(x,y);
       
       if(!MustBeWater(box) && solution == 'S')return false;
-      if(!MustBeBoat(box)  && solution == '-')return false;
+      //if(!MustBeBoat(box)  && solution == '-')return false;
       if(sInCorner(box)    && solution == 'S')return false;
       if(!romeForShip(box) && solution == 'S') return false;
 
@@ -252,6 +262,11 @@ object BattleShipSolatare extends App {
 
       var xBoatCounter = 0;
       var xSeeCounter = 0;
+
+      val xLine = getAllFromX(box.x)
+      val yLine = getAllFromY(box.y)
+
+
 
       for(size <- 0 to puzzle.size -1)
       {

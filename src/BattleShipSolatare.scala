@@ -125,6 +125,7 @@ object BattleShipSolatare extends App {
       if(!MustBeWater(box) && solution == 'S')return false;
       if(MustBeBoat(box)  && solution == '-')return false;
       if(nextToShipPartHint(box) && solution == '-') return false;
+      if(WrongsideOfPartHint(box) && solution == 'S') return false;
       if(sInCorner(box)    && solution == 'S')return false;
       if(!romeForShip(box) && solution == 'S') return false;
 
@@ -148,6 +149,31 @@ object BattleShipSolatare extends App {
       if(box.y < puzzle.size -1)
       {
         if(puzzle.hints(box.x )(box.y +1) == '>')return true;
+      }
+      return false;
+    }
+
+    def WrongsideOfPartHint(box:Square):Boolean =
+    {
+      if(box.x > 1)
+      {
+        if(puzzle.hints(box.x -1)(box.y) == 'V')return true;
+        if(puzzle.hints(box.x -1)(box.y) == '*')return true;
+      }
+      if(box.x < puzzle.size -1)
+      {
+        if(puzzle.hints(box.x +1)(box.y) == 'A')return true;
+        if(puzzle.hints(box.x +1)(box.y) == '*')return true;
+      }
+      if(box.y > 1)
+      {
+        if(puzzle.hints(box.x )(box.y -1) == '>')return true;
+        if(puzzle.hints(box.x )(box.y -1) == '*')return true;
+      }
+      if(box.y < puzzle.size -1)
+      {
+        if(puzzle.hints(box.x )(box.y +1) == '<')return true;
+        if(puzzle.hints(box.x )(box.y +1) == '*')return true;
       }
       return false;
     }
@@ -203,7 +229,7 @@ object BattleShipSolatare extends App {
     def getSNextTo(box:Square, boxes:List[Square]): List[Square] =
     {
       var S:List[Square] = List[Square]();
-      
+
       if(box.y < puzzle.size - 1) //checking right
       {
         if(getSquare(box.x , box.y +1).isSolved && getSquare(box.x ,box.y +1).possibleValues(0) == 'S')S = S :+ getSquare(box.x ,box.y +1);

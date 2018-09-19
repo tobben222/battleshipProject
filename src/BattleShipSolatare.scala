@@ -113,7 +113,14 @@ object BattleShipSolatare extends App {
 
       def reomveIfNotValied(x:Int,y:Int,solution:Char): Unit =
       {
+        if(x==5 && y == 0)
+        {
+          printIt();
+          println("")
+          println("new")
+        }
         if(!isValid(x,y,solution)){
+
           removeValue(x,y,solution);
         }
       }
@@ -133,12 +140,14 @@ object BattleShipSolatare extends App {
       def isValid(x:Int,y:Int,solution:Char):Boolean =
       {
         val box = getSquare(x,y);
+
+
         if(!MustBeWater(box) && solution == 'S')return false;
         if(MustBeBoat(box)  && solution == '-')return false;
         if(nextToShipPartHint(box) && solution == '-') return false;
         if(WrongsideOfPartHint(box) && solution == 'S') return false;
         if(sInCorner(box)    && solution == 'S')return false;
-        if(!romeForShip(box) && solution == 'S') return false;
+        if(romeForShip(box) && solution == '-') return false;
 
         return true;
       }

@@ -77,6 +77,8 @@ object BattleShipSolatare extends App {
         for(y<- 0 to p.size -1){
           for(s<- List('S','-')){
             reomveIfNotValied(x,y,s);
+            printIt();
+            println("")
           }
         }
       }
@@ -85,8 +87,11 @@ object BattleShipSolatare extends App {
 
     def reomveIfNotValied(x:Int,y:Int,solution:Char): Unit ={
       if(!isValid(x,y,solution)){
+        print("1 ")
         removeValue(x,y,solution);
       }
+
+      println(" 2")
 
     }
 
@@ -105,16 +110,15 @@ object BattleShipSolatare extends App {
       val box = getSquare(x,y);
       
       if(!MustBeWater(box) && solution == 'S')return false;
-      if(!MustBeBoat(box) && solution == '-')return false;
-      if(sInCorner(box) && solution == 'S')return false;
-      if(!romeForShip(solution,box)) return false;
-
+      if(!MustBeBoat(box)  && solution == '-')return false;
+      if(sInCorner(box)    && solution == 'S')return false;
+      if(!romeForShip(box) && solution == 'S') return false;
 
       return true;
       }
     // Checks that amount of legal ships is greater than placed ships
-    def romeForShip(solution:Char,box:Square):Boolean = {
-      if(solution == 'S' &&(CanPlaceMoreShips() || nextToShip(box)))return true
+    def romeForShip(box:Square):Boolean = {
+      if(CanPlaceMoreShips() || nextToShip(box))return true
 
       return false;
     }
@@ -127,10 +131,10 @@ object BattleShipSolatare extends App {
 
       if(shipPartsNumber == puzzle.sumShips)
       {
-        return true
+        return false
       }
 
-      return false;
+      return true;
     }
 
 
@@ -139,49 +143,67 @@ object BattleShipSolatare extends App {
       var newList = ships;
       var nr = 0;
 
-      while(newList.length > 0)
+      while(newList.size > 0)
       {
-        val nextTo = getSNextTo(newList(0));
+
+        val nextTo = getSNextTo(newList(0), List());
+
+
         if(nextTo.size == 0)
         {
           newList = newList.filter(_ != newList(0));
+
         }else
         {
           newList = newList diff nextTo
         }
+
 
         nr = nr+1
       }
       return nr;
     }
 
-    def getSNextTo(box:Square): List[Square] =
+    def getSNextTo(box:Square, boxes:List[Square]): List[Square] =
     {
       var S:List[Square] = List[Square]();
-      if(box.x < puzzle.size - 1) //checking right
+
+      if(box.y < puzzle.size - 1) //checking right
       {
-        if(getSquare(box.x +1,box.y).isSolved && getSquare(box.x +1,box.y).possibleValues(0) == 'S')S = S :+ getSquare(box.x +1,box.y);
-      }
-      if(box.x > 0) // checking left
-      {
-        if(getSquare(box.x -1,box.y).isSolved && getSquare(box.x -1,box.y).possibleValues(0) == 'S') S = S :+ getSquare(box.x -1,box.y);
-      }
-      if(box.y < puzzle.size - 1) //checking bottom
-      {
-        if(getSquare(box.x,box.y +1).isSolved && getSquare(box.x ,box.y +1).possibleValues(0) == 'S') S = S :+ getSquare(box.x ,box.y +1);
-      }
-      if(box.x > 0) //checking top
-      {
-        if(getSquare(box.x ,box.y -1).isSolved && getSquare(box.x ,box.y -1).possibleValues(0) == 'S') S = S :+ getSquare(box.x ,box.y-1);
+        if(getSquare(box.x , box.y +1).isSolved && getSquare(box.x ,box.y +1).possibleValues(0) == 'S')S = S :+ getSquare(box.x ,box.y +1);
       }
 
-      if(S.size > 1)
+      if(box.y > 0) // checking left
+      {
+        if(getSquare(box.x ,box.y -1).isSolved && getSquare(box.x -1,box.y).possibleValues(0) == 'S') S = S :+ getSquare(box.x -1,box.y);
+      }
+
+      if(box.x < puzzle.size - 1) //checking bottom
+      {
+        if(getSquare(box.x +1,box.y).isSolved && getSquare(box.x +1,box.y ).possibleValues(0) == 'S') S = S :+ getSquare(box.x +1,box.y);
+      }
+
+      if(box.x > 0) //checking top
+      {
+        if(getSquare(box.x -1,box.y).isSolved && getSquare(box.x -1,box.y).possibleValues(0) == 'S') S = S :+ getSquare(box.x -1 ,box.y);
+      }
+
+      S = S :+ box;
+
+      //delete everyting that overlaps between boxes and S
+      val distinctAll = S ::: boxes;
+      val distinct = distinctAll.distinct;
+      val notCheckedwhithbox = distinct diff boxes
+      val notChecked = notCheckedwhithbox diff List(box)
+
+      if(boxes.size == notCheckedwhithbox.size)
       {
         for(square <- S)
         {
-          S = S ::: getSNextTo(square)
+          S = S ::: getSNextTo(square, distinct)
         }
       }
+
 
       return S.distinct;
     }
@@ -199,14 +221,13 @@ object BattleShipSolatare extends App {
       {
         if(getSquare(box.x,box.y +1).isSolved && getSquare(box.x ,box.y +1).possibleValues(0) == 'S')return true;
       }
-      if(box.x > 0) //checking top
+      if(box.y > 0) //checking top
       {
         if(getSquare(box.x ,box.y -1).isSolved && getSquare(box.x ,box.y -1).possibleValues(0) == 'S')return true;
       }
 
       return false
     }
-
 
     def MustBeWater(box:Square):Boolean =
     {
@@ -251,7 +272,6 @@ object BattleShipSolatare extends App {
 
     def sInCorner(box:Square):Boolean = //cheks if there are ships in its corners
     {
-      if (box.x == puzzle.size - 1) println("test")
       if (box.x > 0 && box.x < puzzle.size - 1 && box.y > 0 && box.y < puzzle.size - 1) // is in the middle
       {
         val leftTop = getSquare(box.x - 1, box.y - 1)

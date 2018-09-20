@@ -135,7 +135,7 @@ object BattleShipSolatare extends App {
       def isValid(x:Int,y:Int,solution:Char):Boolean = {
         val box = getSquare(x,y);
 
-        if(!MustBeWater(box) && solution == 'S')return false;
+        if(MustBeWater(box) && solution == 'S')return false;
         if(MustBeBoat(box)  && solution == '-')return false;
         if(nextToShipPartHint(box) && solution == '-') return false;
         if(WrongsideOfPartHint(box) && solution == 'S') return false;
@@ -344,10 +344,10 @@ object BattleShipSolatare extends App {
           if(getSquare(size,box.y).isSolved && getSquare(size,box.y).possibleValues(0) == 'S') yCounter = yCounter +1;
           if(getSquare(box.x,size).isSolved && getSquare(box.x,size).possibleValues(0) == 'S') xCounter = xCounter +1;
         }
-        if(yCounter == puzzle.vertical(box.y))return false;
-        if(xCounter == puzzle.horizontal(box.x))return false;
+        if(yCounter == puzzle.vertical(box.y))return true;
+        if(xCounter == puzzle.horizontal(box.x))return true;
 
-        return true
+        return false
       }
       //checks if the remaining squares must be boats to fill row
       def MustBeBoat(box:Square):Boolean = {

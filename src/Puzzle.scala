@@ -16,7 +16,7 @@ class Puzzle(s:Int, information:List[String]) {
     {
       val shipSet = whitoutWord(i);
       val seperated = shipSet split "x";
-      map += (seperated(0).toInt -> seperated(1).toInt);
+      map += (seperated(1).toInt -> seperated(0).toInt);
     }
 
     return map;

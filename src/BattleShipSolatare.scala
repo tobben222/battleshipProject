@@ -96,7 +96,10 @@ object BattleShipSolatare extends App {
           for(x<- 0 to p.size -1){
             for(y<- 0 to p.size -1){
               for(s<- List('S','-')){
-                reomveIfNotValied(x,y,s);
+                if(!getSquare(x,y).isSolved)
+                {
+                  reomveIfNotValied(x,y,s);
+                }
               }
             }
           }
@@ -135,16 +138,94 @@ object BattleShipSolatare extends App {
       {
         val box = getSquare(x,y);
 
-
         if(!MustBeWater(box) && solution == 'S')return false;
         if(MustBeBoat(box)  && solution == '-')return false;
         if(nextToShipPartHint(box) && solution == '-') return false;
         if(WrongsideOfPartHint(box) && solution == 'S') return false;
         if(sInCorner(box)    && solution == 'S')return false;
-        if(!romeForShip(box) && solution == 'S') return false;
+        if(!romeForShip(box) && solution == 'S')return false;
+        if(!canBeSingle(box) && solution == 'S')return false;
 
+        //printIt()
+        //println("")
         return true;
       }
+
+      def canBeSingle(box:Square):Boolean =
+      {
+        val single = allSquares.filter(p => (nextToNoShipsAndNoEmpty(p) && p.isSolved && p.possibleValues(0) == 'S'));
+        val fullOfSingels = (single.size == puzzle.ships(1));
+
+        val t1 = single.size;
+        val t2 = puzzle.ships(1);
+
+        if(fullOfSingels) //There are already full of 1x1 ships
+        {
+          if(nextToNoShipsAndNoEmpty(box)) //The Box is isolated
+          {
+            return false
+          }
+        }
+
+        return true
+      }
+
+      def nextToNoShipsAndNoEmpty(box:Square):Boolean =
+      {
+        if(box.x < puzzle.size - 1) //checking right
+        {
+          if(getSquare(box.x +1,box.y).isSolved && getSquare(box.x +1,box.y).possibleValues(0) == 'S')return false;
+          if(!getSquare(box.x +1,box.y).isSolved)return false
+        }
+        if(box.x > 0) // checking left
+        {
+          if(getSquare(box.x -1,box.y).isSolved && getSquare(box.x -1,box.y).possibleValues(0) == 'S')return false;
+          if(!getSquare(box.x -1,box.y).isSolved)return false
+        }
+        if(box.y < puzzle.size - 1) //checking bottom
+        {
+          if(getSquare(box.x,box.y +1).isSolved && getSquare(box.x ,box.y +1).possibleValues(0) == 'S')return false;
+          if(!getSquare(box.x,box.y +1).isSolved)return false
+        }
+        if(box.y > 0) //checking top
+        {
+          if(getSquare(box.x ,box.y -1).isSolved && getSquare(box.x ,box.y -1).possibleValues(0) == 'S')return false;
+          if(!getSquare(box.x ,box.y -1).isSolved)return false
+        }
+        return true
+      }
+
+      def nextToShip(box:Square):Boolean =
+      {
+        if(box.x < puzzle.size - 1) //checking right
+        {
+          if(getSquare(box.x +1,box.y).isSolved && getSquare(box.x +1,box.y).possibleValues(0) == 'S')return true;
+        }
+        if(box.x > 0) // checking left
+        {
+          if(getSquare(box.x -1,box.y).isSolved && getSquare(box.x -1,box.y).possibleValues(0) == 'S')return true;
+        }
+        if(box.y < puzzle.size - 1) //checking bottom
+        {
+          if(getSquare(box.x,box.y +1).isSolved && getSquare(box.x ,box.y +1).possibleValues(0) == 'S')return true;
+        }
+        if(box.y > 0) //checking top
+        {
+          if(getSquare(box.x ,box.y -1).isSolved && getSquare(box.x ,box.y -1).possibleValues(0) == 'S')return true;
+        }
+
+        return false;
+      }
+
+
+
+
+
+
+
+
+
+
 
       def nextToShipPartHint(box:Square): Boolean =
       {
@@ -166,9 +247,9 @@ object BattleShipSolatare extends App {
         }
         return false;
       }
-
       def WrongsideOfPartHint(box:Square):Boolean =
       {
+
         if(box.x > 1)
         {
           if(puzzle.hints(box.x -1)(box.y) == 'V')return true;
@@ -191,16 +272,14 @@ object BattleShipSolatare extends App {
         }
         return false;
       }
-
       // Checks that amount of legal ships is greater than placed ships
       def romeForShip(box:Square):Boolean =
       {
-        if(CanPlaceMoreShips() || nextToShip(box))return true
+        if(CanPlaceMoreShips() || !nextToNoShipsAndNoEmpty(box))return true
         //|| nextToShip(box)
 
         return false;
       }
-
       def CanPlaceMoreShips():Boolean = //true if there are fever ships than given
       {
         val shipParts = allSquares.filter(x => x.isSolved && x.possibleValues(0) == 'S')
@@ -214,7 +293,6 @@ object BattleShipSolatare extends App {
 
         return true;
       }
-
       def trimList(ships:List[Square]):Int = //trims list removing one square if it is next to another one(but not the other one)
       {
         var newList = ships;
@@ -240,7 +318,6 @@ object BattleShipSolatare extends App {
         }
         return nr;
       }
-
       def getSNextTo(box:Square, boxes:List[Square]): List[Square] =
       {
         var S:List[Square] = List[Square]();
@@ -281,28 +358,6 @@ object BattleShipSolatare extends App {
 
         return S.distinct;
       }
-      def nextToShip(box:Square):Boolean =
-      {
-        if(box.x < puzzle.size - 1) //checking right
-        {
-          if(getSquare(box.x +1,box.y).isSolved && getSquare(box.x +1,box.y).possibleValues(0) == 'S')return true;
-        }
-        if(box.x > 0) // checking left
-        {
-          if(getSquare(box.x -1,box.y).isSolved && getSquare(box.x -1,box.y).possibleValues(0) == 'S')return true;
-        }
-        if(box.y < puzzle.size - 1) //checking bottom
-        {
-          if(getSquare(box.x,box.y +1).isSolved && getSquare(box.x ,box.y +1).possibleValues(0) == 'S')return true;
-        }
-        if(box.y > 0) //checking top
-        {
-          if(getSquare(box.x ,box.y -1).isSolved && getSquare(box.x ,box.y -1).possibleValues(0) == 'S')return true;
-        }
-
-        return false
-      }
-
       def MustBeWater(box:Square):Boolean =
       {
         var yCounter  = 0;
@@ -350,7 +405,6 @@ object BattleShipSolatare extends App {
         if(yEmpty == (puzzle.vertical(box.y)-yS))return true
         return false;
       }
-
       def sInCorner(box:Square):Boolean = //cheks if there are ships in its corners
       {
         if (box.x > 0 && box.x < puzzle.size - 1 && box.y > 0 && box.y < puzzle.size - 1) // is in the middle
@@ -439,7 +493,6 @@ object BattleShipSolatare extends App {
         }
         return false;
       }
-
       def printIt() = {
         implicit def intToSqrt = ((x: Double) => x.toInt)
 
@@ -450,7 +503,6 @@ object BattleShipSolatare extends App {
         }
 
       }
-
       def setValue(x:Int,y:Int,solution:Char):Boolean = {
         val s = getSquare(x,y);
         if(s.getCorrectValue()==solution){
@@ -463,7 +515,6 @@ object BattleShipSolatare extends App {
           return true;
         }
       }
-
       def getAllFromX(x:Int):List[Square] = {
         return allSquares.filter((s:Square) => s.x==x)
       }

@@ -1,10 +1,10 @@
 import java.io._
 import scala.io.Source
 
-object BattleShipSolatare extends App {
+object PuzzleSolver extends App {
 
   //val unsolved_puzzle_path = "puzzle_unsolved.txt"
-  val unsolved_puzzle_path = "puzzle.txt"
+  val unsolved_puzzle_path = "puzzle_unsolved.txt"
   val solved_puzzle_path = "puzzle_solved.txt"
 
   val sol = solveBattleShip(unsolved_puzzle_path);
@@ -62,19 +62,20 @@ object BattleShipSolatare extends App {
       }
 
       //before everything
-      println("Puzzle")
-      printIt();
-      println("");
+      //println("Puzzle")
+      //printIt();
+      //println("");
 
       // apply rules
 
       // bruteforce
       bruteForce(puzzle);
-      println("After Brute Force");
-      printIt();
+      //println("After Brute Force");
+      //printIt();
 
-      println("");
-      println("");
+      //println("");
+      //println("");
+
 
       //write solution of singe puzzle to file
       sol += "size " + puzzle.size + "x" + puzzle.size + "\n"

@@ -1,9 +1,106 @@
 import java.io._
-import scala.io.Source
 
 object PuzzleSolver extends App {
 
-  //val unsolved_puzzle_path = "puzzle_unsolved.txt"
+  //classes places here because when testing whit banboo cant find class in other file
+  class Puzzle(s:Int, information:List[String]) {
+    val size = s;
+    val ships = MapOfShips(information(0));
+    val horizontal = fromStringToIntList(information(2));
+    val vertical = fromStringToIntList(information(1));
+    val hints = fromStingsToCharList(information.slice(4, s+4));
+    val sumShips = NumberOfShips(ships);
+    val sumShipParts = NumberOfShipParts(vertical);
+
+    private def MapOfShips(text:String):Map[Int,Int] =
+    {
+      val whioutSpace = text split " ";
+      val whitoutWord = whioutSpace.slice(1,whioutSpace.length);
+      var map:Map[Int,Int] = Map();
+      for(i <- 0 to whitoutWord.length- 1)
+      {
+        val shipSet = whitoutWord(i);
+        val seperated = shipSet split "x";
+        map += (seperated(1).toInt -> seperated(0).toInt);
+      }
+
+      return map;
+    }
+    private def NumberOfShips(map:Map[Int,Int]): Int =
+    {
+      return map.foldLeft(0.0)(_+_._2).toInt;
+    }
+
+    private def NumberOfShipParts(l:List[Int]):Int =
+    {
+      return l.foldLeft(0)(_ + _);
+    }
+
+    private def fromStringToIntList(text:String):List[Int] =
+    {
+      val whioutSpace = text split " ";
+      val whitoutWord = whioutSpace.slice(1,whioutSpace.length);
+      var intList:List[Int] = List();
+      for(i <- 0 to size- 1)
+      {
+        intList = intList :+ whitoutWord(i).toInt;
+      }
+
+      return intList;
+    }
+
+    private def fromStingsToCharList(hints:List[String]):List[List[Char]] =
+    {
+      var hints2D:List[List[Char]] = List()
+
+      for(i <- 0 to size -1)
+      {
+        val splitString = hints(i) split " ";
+        var row:List[Char] = List();
+        //print(splitString(1));
+        for(j <- 0 to size -1)
+        {
+          val c =  splitString(j);
+          row = row :+ c.charAt(0);
+
+        }
+        hints2D = hints2D :+ row;
+      }
+      return hints2D;
+    }
+
+
+  }
+  class Square(xNumber:Int,yNumber:Int, values:List[Char] = List('-','S'), solved:Boolean=false){
+
+    val x = xNumber;
+    val y = yNumber;
+    val possibleValues = values;
+    val isSolved = solved;
+
+
+    def setValue(solution:Char):Square = {
+      return new Square(x,y,List(solution),true);
+    }
+    def removeValue(wrongSolution:Int):Square = {
+      val newList = this.possibleValues.filter(_ != wrongSolution);
+      if(newList.length > 1)
+        return new Square(x,y,newList,false);
+      else
+        return new Square(x,y,newList,true);
+    }
+    def getCorrectValue():Char = {
+      if(this.isSolved)
+      {
+        return this.possibleValues(0);
+      }
+      else
+      {
+        return 0
+      }
+    }
+  }
+
   val unsolved_puzzle_path = "puzzle_unsolved.txt"
   val solved_puzzle_path = "puzzle_solved.txt"
 
@@ -61,21 +158,8 @@ object PuzzleSolver extends App {
         }
       }
 
-      //before everything
-      //println("Puzzle")
-      //printIt();
-      //println("");
 
-      // apply rules
-
-      // bruteforce
       bruteForce(puzzle);
-      //println("After Brute Force");
-      //printIt();
-
-      //println("");
-      //println("");
-
 
       //write solution of singe puzzle to file
       sol += "size " + puzzle.size + "x" + puzzle.size + "\n"
@@ -87,7 +171,6 @@ object PuzzleSolver extends App {
         }
         sol += "\n"
       }
-
 
       //bruteforce runs until the puzzle is solved
       def bruteForce(p:Puzzle): Unit = {
@@ -143,6 +226,7 @@ object PuzzleSolver extends App {
         if(sInCorner(box)    && solution == 'S')return false;
         if(!romeForShip(box) && solution == 'S')return false;
         if(!canBeSingle(box) && solution == 'S')return false;
+        if(CantBeShip(box) && solution == 'S')return false;
 
         return true;
       }
@@ -160,6 +244,114 @@ object PuzzleSolver extends App {
 
         return true
       }
+
+      //gets all ship parts next to the given square
+      def getPosibleShip(box:Square, boxes:List[Square]): List[Square] = {
+        var S:List[Square] = List[Square]();
+
+        if(box.y < puzzle.size - 1) //checking right
+        {
+          if(!getSquare(box.x , box.y +1).isSolved || (getSquare(box.x ,box.y +1).isSolved && getSquare(box.x ,box.y +1).possibleValues(0) == 'S'))S = S :+ getSquare(box.x ,box.y +1);
+        }
+        if(box.y > 0) // checking left
+        {
+          if(!getSquare(box.x ,box.y -1).isSolved  || (getSquare(box.x ,box.y -1).isSolved && getSquare(box.x ,box.y -1).possibleValues(0) == 'S')) S = S :+ getSquare(box.x ,box.y-1);
+        }
+        if(box.x < puzzle.size - 1) //checking bottom
+        {
+          if(!getSquare(box.x +1,box.y).isSolved   || (getSquare(box.x +1, box.y).isSolved && getSquare(box.x +1,box.y).possibleValues(0) == 'S')) S = S :+ getSquare(box.x +1,box.y);
+        }
+        if(box.x > 0) //checking top
+        {
+          if(!getSquare(box.x -1,box.y).isSolved || (getSquare(box.x -1,box.y).isSolved && getSquare(box.x -1,box.y).possibleValues(0) == 'S')) S = S :+ getSquare(box.x -1 ,box.y);
+        }
+        val thusFar:List[Square] = List(box) ::: boxes ::: S;
+        val next = S diff (boxes ::: List(box))
+        var answer = thusFar;
+        if(next.size > 0)
+        {
+          for(p <- S)
+          {
+            answer = answer ::: getSNextTo(p,thusFar.distinct)
+          }
+        }
+        return answer.distinct;
+
+      }
+
+
+      def CantBeShip(box:Square):Boolean =
+      {
+        for((k,p) <- puzzle.ships)
+        {
+          if(k >= 3)
+          {
+            if(FulleOfTypeOfShip(k))//full of sertan size
+            {
+              if(!box.isSolved)
+              {
+                if(getSNextTo(box,List()).size == k)
+                {
+                  return true
+                }
+              }
+            }
+          }
+        }
+        return false
+      }
+
+      def FulleOfTypeOfShip(x:Int): Boolean =
+      {
+        val ships = GetFinishedShips();
+        var number = 0;
+        for(ship <- ships)
+        {
+          if( x == ship.size)
+          {
+            number = number +1
+          }
+        }
+        if(puzzle.ships(x) == number)return true;
+
+        return false;
+      }
+      def GetFinishedShips():List[List[Square]]=
+      {
+        var finishedSquares  = allSquares.filter(p => (p.isSolved && p.possibleValues(0) == 'S'));
+        var ships:List[List[Square]] =List()
+        while(finishedSquares.size > 0)
+        {
+          val ship = getSNextTo(finishedSquares(0), List())
+
+          if(ship.size > 1)
+          {
+            if(ship(0).x == ship(1).x) //in the samme vertical line
+            {
+              val shipSorted = ship.sortWith( _.y < _.y)
+              val okLeft = (shipSorted(0).y == 0 || (getSquare(shipSorted(0).x,shipSorted(0).y -1).isSolved && getSquare(ship(0).x,shipSorted(0).y -1).possibleValues(0) == '-'))
+              val okRight = (shipSorted(shipSorted.size -1).y == puzzle.size -1 ||(getSquare(shipSorted(0).x, ship(shipSorted.size -1).y +1).isSolved && getSquare(shipSorted(0).x, shipSorted(shipSorted.size -1).y +1).possibleValues(0) == '-'))
+              if(okLeft && okRight)
+              {
+                ships = ships :+ shipSorted
+              }
+
+            }else // in same horisontal line
+            {
+              val shipSorted = ship.sortWith( _.x < _.x)
+              val okOnTop = (shipSorted(0).x == 0 || (getSquare(shipSorted(0).x -1,shipSorted(0).y).isSolved && getSquare(shipSorted(0).x -1,shipSorted(0).y).possibleValues(0) == '-'))
+              val okOnBot = (shipSorted(shipSorted.size -1).x == puzzle.size -1 || (getSquare(shipSorted(shipSorted.size -1).x +1, shipSorted(0).y).isSolved && getSquare(shipSorted(shipSorted.size -1).x +1, shipSorted(0).y).possibleValues(0) == '-'));
+              if(okOnTop && okOnBot)
+              {
+                ships = ships :+ shipSorted
+              }
+            }
+          }
+          finishedSquares = finishedSquares diff ship
+        }
+        return ships;
+      }
+
       //the square given is next to no ships and no unsolved squares
       def nextToNoShipsAndNoEmpty(box:Square):Boolean ={
         if(box.x < puzzle.size - 1) //checking right
@@ -311,29 +503,22 @@ object PuzzleSolver extends App {
         {
           if(getSquare(box.x +1,box.y).isSolved && getSquare(box.x +1,box.y ).possibleValues(0) == 'S') S = S :+ getSquare(box.x +1,box.y);
         }
-
         if(box.x > 0) //checking top
         {
           if(getSquare(box.x -1,box.y).isSolved && getSquare(box.x -1,box.y).possibleValues(0) == 'S') S = S :+ getSquare(box.x -1 ,box.y);
         }
-        S = S :+ box;
-
-        //delete everyting that overlaps between boxes and S
-        val distinctAll = S ::: boxes;
-        val distinct = distinctAll.distinct;
-        val notCheckedwhithbox = distinct diff boxes
-        val notChecked = notCheckedwhithbox diff List(box)
-
-        if(boxes.size == notCheckedwhithbox.size)
+        val thusFar:List[Square] = List(box) ::: boxes ::: S;
+        val next = S diff (boxes ::: List(box))
+        var answer = thusFar;
+        if(next.size > 0)
         {
-          for(square <- S)
+          for(p <- S)
           {
-            S = S ::: getSNextTo(square, distinct)
+            answer = answer ::: getSNextTo(p,thusFar.distinct)
           }
         }
+        return answer.distinct;
 
-
-        return S.distinct;
       }
       //checks if the row and colum is full of boats and must therefor be water
       def MustBeWater(box:Square):Boolean = {

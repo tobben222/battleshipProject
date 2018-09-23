@@ -1,3 +1,5 @@
+package puzzle
+
 class Puzzle(s:Int, information:List[String]) {
   val size = s;
   val ships = MapOfShips(information(0));

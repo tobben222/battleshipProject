@@ -1,3 +1,5 @@
+package square
+
 class Square(xNumber:Int,yNumber:Int, values:List[Char] = List('-','S'), solved:Boolean=false){
 
   val x = xNumber;

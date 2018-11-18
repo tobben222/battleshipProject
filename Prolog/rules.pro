@@ -217,10 +217,30 @@ getColumn([[FirstBox | RestBoxes] | RestOfRows], ColumnToGet, [ThisRow | BoxInLa
 
 getShipSize(['V'], [], 1).
 getShipSize(['A' | T], Remaining, Size):-
-    !, getShipSize(T, Remaining, Result)
+    !, getShipSize(T, Remaining, Result),
+    Size is Result + 1.
 
 getShipSize(['>'], [], 1).
+getShipSize(['<' | T], Remaining, Size):-
+    !, getShipSize(T, Remaining, Result),
+    Size is Result + 1.
 
 getShipSize(['+' | T], Remaining, Size):- 
     !, getShipSize(T, Remaining, Result),
     Size is Result + 1.
+
+/*Get lenght of list*/
+lenghtOfList([], 0):- !.
+lenghtOfList([_], 1):- !.
+lenghtOfList([_ | T], Lenght):- lenghtOfList(T, OldLenght), Lenght is OldLenght+1, !.
+
+/*Find removed Boxes from first row*/
+findNumber([[_], [_]], 1).
+findNumber([[_], [_] | _], 1).
+findNumber([[_], [_ | T]], Return):- findNumber(T, Lenght), Return is Lenght + 1.
+findNumber([[_ | T] | _], Return):- findNumber(T,Lenght), Return is Lenght + 1.
+findNumber([[_|T], [_|T2]], Return):- findNumber([T, T2],Return).
+findNumber([[_ | T], [_ | T2] |  T3], Return):-findNumber([T, T2 | T3], Return), !.
+
+/*Count Number of Ships of all types*/
+countShips([['-' | T]], Ships):- !, countShips([T],Ships).

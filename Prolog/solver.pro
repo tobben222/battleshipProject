@@ -6,7 +6,7 @@ shipInput(e).
 shipInput(s).
 shipInput(w).
 shipInput(x).
-shipInput(o).
+shipInput(o). /* 1x1 ship*/
 
 
 /*
@@ -87,8 +87,7 @@ checkColumnChecksum([[Head | Tail] | Tail2], [Tail | NewTail], ColumnChecksum) :
 checkColumnChecksum([['~']], [], 0).
 checkColumnChecksum([['~'] | Tail], [], ColumnChecksum) :- checkColumnChecksum(Tail, [], ColumnChecksum).
 checkColumnChecksum([['~' | Tail]], [Tail], 0).
-checkColumnChecksum([['~' | Tail] | Tail2], [Tail | NewTail], ColumnChecksum) :-
-    checkColumnChecksum(Tail2, NewTail, ColumnChecksum).
+checkColumnChecksum([['~' | Tail] | Tail2], [Tail | NewTail], ColumnChecksum) :- checkColumnChecksum(Tail2, NewTail, ColumnChecksum).
 
 
 /*

@@ -196,13 +196,13 @@ getBox([H | _], 1, H):- !.
 getBox([_ | T ], BoxToGet, Return):- BoxToGet1 is BoxToGet -1, getBox(T,BoxToGet1,Return).
 
 
-/*Set Value of Box*/
-setBox([_],   1, Box, [Box]):- !.
-setBox([_|T], 1, Box, [Box| T]) :- !.
-setBox([H|T], BoxToChange, Box, Return):- 
+/*Set Value in list*/
+setValue([_],   1, Box, [Box]):- !.
+setValue([_|T], 1, Box, [Box| T]) :- !.
+setValue([H|T], BoxToChange, Box, Return):- 
     BoxToChange > 1,
     BoxToChange1 is BoxToChange -1,
-    setBox(T, BoxToChange1, Box, OldValue),
+    setValue(T, BoxToChange1, Box, OldValue),
     append([H], OldValue, Return).
 
 /*Get Column*/
@@ -243,4 +243,48 @@ findNumber([[_|T], [_|T2]], Return):- findNumber([T, T2],Return).
 findNumber([[_ | T], [_ | T2] |  T3], Return):-findNumber([T, T2 | T3], Return), !.
 
 /*Count Number of Ships of all types*/
+/*only count the upper most and Left most peases of a boat to only count once and also single ships*/
 countShips([['-' | T]], Ships):- !, countShips([T],Ships).
+countShips([['-']| T], Ships):- !, countShips(T,Ships).
+countShips([['-' | T] | T2], Ships):- !, countShips([T|T2], Ships).
+countShips([['+' | T] | T2], Ships):- !, countShips([T|T2], Ships).
+countShips([['V' | T] | T2], Ships):- !, countShips([T|T2], Ships).
+countShips([['>' | T] | T2], Ships):- !, countShips([T|T2], Ships).
+
+countShips([['A' | T] | T2], Ships):-
+    !, findNumber([['A' | T]| T2], Number),
+    getColumn(T2, Number, Column),
+    getShipSize(['A' | Column], _ ,Size),
+    getBox(Ships, Size, NumberOfSizeShip),
+    NumberOfSizeShip > 0,
+    NumberOfSizeShip1 is NumberOfSizeShip - 1,
+    setValue(Ships,Size,NumberOfSizeShip1,NewShipList),
+    countShips([T | T2], NewShipList).
+
+countShips([['<' | T] | T2], Ships):-
+    !, findNumber([['<' | T]| T2], Number),
+    getColumn(T2, Number, Column),
+    getShipSize(['<' | Column], _ ,Size),
+    getBox(Ships, Size, NumberOfSizeShip),
+    NumberOfSizeShip > 0,
+    NumberOfSizeShip1 is NumberOfSizeShip - 1,
+    setValue(Ships,Size,NumberOfSizeShip1,NewShipList),
+    countShips([T | T2], NewShipList).
+
+countShips([['*' | T], T2], Ships):- 
+    !, getBox(Ships,1, NumberOfShips),
+    NumberOfShips > 0,
+    NewNumberOfShips is NumberOfShips -1,
+    setValue(Ships, 1 ,NewNumberOfShips, NewShipList),
+    countShips([T| T2], NewShipList).
+
+battleship(Puzzle, Column,Row, Ships, Puzzle):-
+    addColoms(Puzzle, TempPuzzle),
+    addRow(TempPuzzle, VaterRow),
+    append(TempPuzzle, [VaterRow], TempPuzzle2),
+    append([VaterRow], TempPuzzle2, NewPuzzle),
+    checkColumns(Puzzle, Column),
+    checkRow(Puzzle,Row),
+    checkBoxes(NewPuzzle, NewPuzzle),
+    countShips(NewPuzzle, Ships).
+

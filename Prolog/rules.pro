@@ -14,12 +14,19 @@
 /*Defining leagal vertical combinations
 leagalVertical(Left or Top Most, Right or Bottom Most)
 */
+
     leagalVertical('A','+'). /*horizontal ships*/
     leagalVertical('A','V').
     leagalVertical('-','A').
     leagalVertical('+','+').
     leagalVertical('+','V').
     leagalVertical('V','-').
+    leagalVertical('S','-').
+    leagalVertical('-','S').
+    leagalVertical('S','+').
+    leagalVertical('+','S').
+    leagalVertical('S','V').
+    leagalVertical('A','S').
 
     leagalVertical('*','-'). /*single ships*/
     leagalVertical('-','*').
@@ -40,6 +47,12 @@ legalHorizontal(Higest, Lowest)
     legalHorizontal('+','+').
     legalHorizontal('+','>').
     legalHorizontal('>','-').
+    legalHorizontal('S','-').
+    legalHorizontal('-','S').
+    legalHorizontal('S','+').
+    legalHorizontal('+','S').
+    legalHorizontal('S','>').
+    legalHorizontal('<','S').
 
     legalHorizontal('*','-'). /*single ships*/
     legalHorizontal('-','*').
@@ -278,7 +291,7 @@ countShips([['*' | T], T2], Ships):-
     setValue(Ships, 1 ,NewNumberOfShips, NewShipList),
     countShips([T| T2], NewShipList).
 
-battleship(Puzzle, Column,Row, Ships, Puzzle):-
+battleship(Puzzle, Column,Row, Ships, Puzzle):- 
     addColoms(Puzzle, TempPuzzle),
     addRow(TempPuzzle, VaterRow),
     append(TempPuzzle, [VaterRow], TempPuzzle2),
@@ -286,5 +299,5 @@ battleship(Puzzle, Column,Row, Ships, Puzzle):-
     checkColumns(Puzzle, Column),
     checkRow(Puzzle,Row),
     checkBoxes(NewPuzzle, NewPuzzle),
-    countShips(NewPuzzle, Ships).
-
+    countShips(NewPuzzle, Ships),
+    !.

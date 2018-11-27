@@ -1,5 +1,5 @@
-outputFile('./Prolog/battleships_solved.txt').
-inputFile('./Prolog/battleships_unsolved.txt').
+outputFile('battleships_solved.txt').
+inputFile('battleships_unsolved.txt').
 
 /********************* dummy solution algorithms -> fill your correct algorithm here */
 /* Defining parts*/
@@ -83,17 +83,20 @@ leagalDiagonal(P1,P2):-
 /*add rows*/
 
 addRow([[_] | _], ['-']).
-addRow([[_ | T] | _], ['-' | Retrun]):- addRow([T],Retrun).
+addRow([[_ | T] | _], ['-' | Retrun]):- 
+  addRow([T],Retrun).
 
 /*add coloms*/
-addColoms([[H|T]],[Return]) :- 
+addColoms(grid([[H|T]]),[Return]) :- 
   append([H|T],['-'], Temp),
   append(['-'], Temp,Return).
 
-addColoms([[H|T]|T2],[Return | T3]):-
-  append([H|T], ['-'], Temp),
-  append(['-'], Temp,Return),
-  addColoms(T2,T3).
+addColoms(grid([[Head | Tail] | Tail2]), [NewRow | Tail3]) :-
+  append([Head | Tail], ['-'], TempRow),
+  append(['-'], TempRow, NewRow),
+  addColoms(grid(Tail2), Tail3).
+
+addColoms(Puzzle,Puzzle).
 
 /*check if the nuber in vertical matches Row*/
 
@@ -133,11 +136,25 @@ checkColumn([['-'|T]], [T], 0).
 checkColumn([['-'|T] | T2], [T, New], ColumnNumber) :- checkColumn(T2,New,ColumnNumber).
 
 /*Checking all Colomns*/
-checkColumns([[H | T], [ColumnNumber]]):- checkColumn([[H] | T], [], ColumnNumber).
+checkColumns([[H] | T],[ColumnNumber]):- 
+  write('checking column 2'), nl,
+  checkColumn([[H] | T], [], ColumnNumber).
+
+checkColumns(grid([[H] | T]),vertical([ColumnNumber])):- 
+  write('checking column 3'), nl,
+  checkColumn([[H] | T], [], ColumnNumber).
+
+checkColumns(grid([[H|T] | T2]), vertical([ColumnNumber | RestColumnNumbers])):-
+  checkColumn([[H|T], T2], NewPuzzle, ColumnNumber),
+  checkColumns(NewPuzzle, RestColumnNumbers).
 
 checkColumns([[H|T] | T2], [ColumnNumber | RestColumnNumbers]):-
   checkColumn([[H|T], T2], NewPuzzle, ColumnNumber),
+  write('column checked 1'), nl,
   checkColumns(NewPuzzle, RestColumnNumbers).
+
+checkColumns(Puzzle,Column):-
+  write('  no matching function'), nl.
 
 /*check leagal box*/
 
@@ -293,15 +310,10 @@ countShips([['*' | T], T2], Ships):-
   countShips([T| T2], NewShipList).
 
 doSolve(battleships(size(X),Ships, Row, Column, Puzzle),battleships(size(X), Ships, Row, Column, Puzzle)):-
-  write('Riktig 1 '),nl,
   addColoms(Puzzle, TempPuzzle),
-  write('Riktig 2 '),nl,
   addRow(TempPuzzle, VaterRow),
-  write('Riktig 3 '), nl,
   append(TempPuzzle, [VaterRow], TempPuzzle2),
-  write('Riktig 4 '),nl,
   append([VaterRow], TempPuzzle2, NewPuzzle),
-  write('Riktig 5 '), nl,
   checkColumns(Puzzle, Column),
   write('Riktig 6 '), nl,
   checkRow(Puzzle,Row),
@@ -309,12 +321,11 @@ doSolve(battleships(size(X),Ships, Row, Column, Puzzle),battleships(size(X), Shi
   checkBoxes(NewPuzzle, NewPuzzle),
   write('Riktig 8 '),nl,
   countShips(NewPuzzle, Ships),
-  write('Riktig 9 '), nl,
-  writeGrid(NewPuzzle),!.
-  %%writeFullOutput(battleships(size(X),Ships, Row, column, NewPuzzle)), !.
+  write('Riktig 9 '), nl.
+
   
 doSolve(Solution,Solution):-
-  write('FeilFeilFeil'), nl.
+  write('ErrorErrorError'), nl.
 
 /********************* writing the result */
 writeFullOutput(battleships(size(N),_,_,_,grid(Puzzle))):- 

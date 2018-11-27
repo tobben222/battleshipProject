@@ -1,6 +1,107 @@
 puzzles 2
-Riktig 1 
-FeilFeilFeil
+column checked 1
+column checked 1
+  no matching function
+Riktig 6 
+column checked 1
+column checked 1
+column checked 1
+checking column 2
+  no matching function
+Riktig 6 
+column checked 1
+checking column 2
+column checked 1
+  no matching function
+Riktig 6 
+column checked 1
+  no matching function
+Riktig 6 
+column checked 1
+  no matching function
+Riktig 6 
+  no matching function
+Riktig 6 
+  no matching function
+Riktig 6 
+column checked 1
+column checked 1
+checking column 2
+  no matching function
+Riktig 6 
+column checked 1
+checking column 2
+column checked 1
+  no matching function
+Riktig 6 
+column checked 1
+  no matching function
+Riktig 6 
+column checked 1
+  no matching function
+Riktig 6 
+  no matching function
+Riktig 6 
+  no matching function
+Riktig 6 
+  no matching function
+Riktig 6 
+  no matching function
+Riktig 6 
+column checked 1
+column checked 1
+  no matching function
+Riktig 6 
+column checked 1
+column checked 1
+column checked 1
+checking column 2
+  no matching function
+Riktig 6 
+column checked 1
+checking column 2
+column checked 1
+  no matching function
+Riktig 6 
+column checked 1
+  no matching function
+Riktig 6 
+column checked 1
+  no matching function
+Riktig 6 
+  no matching function
+Riktig 6 
+  no matching function
+Riktig 6 
+column checked 1
+column checked 1
+checking column 2
+  no matching function
+Riktig 6 
+column checked 1
+checking column 2
+column checked 1
+  no matching function
+Riktig 6 
+column checked 1
+  no matching function
+Riktig 6 
+column checked 1
+  no matching function
+Riktig 6 
+  no matching function
+Riktig 6 
+  no matching function
+Riktig 6 
+  no matching function
+Riktig 6 
+  no matching function
+Riktig 6 
+  no matching function
+Riktig 6 
+  no matching function
+Riktig 6 
+ErrorErrorError
 size 6x6
 ? ? ? ? ? ? 
 ? ? ? ? ? ? 
@@ -8,8 +109,9 @@ size 6x6
 ? ? ? ? ? ? 
 ? ? ? ? ? ? 
 ? ? - ? ? ? 
-Riktig 1 
-FeilFeilFeil
+  no matching function
+Riktig 6 
+ErrorErrorError
 size 8x8
 ? - ? ? ? ? ? ? 
 ? ? ? ? ? ? ? ? 

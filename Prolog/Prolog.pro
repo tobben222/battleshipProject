@@ -106,12 +106,19 @@ checkRow([H|T], RowNumber):- not(H == '-'), RowNumber1 is RowNumber -1, checkRow
 checkRow(['-'| T], RowNumber):- checkRow(T,RowNumber).
 
 /*Checking all rows*/
-checkRows([[H|T]],[RowNumber]):- checkRow([H,T], RowNumber).
+checkRows([[H|T]],[RowNumber]):-
+   checkRow([H,T], RowNumber).
+
+checkRows(grid([[H|T]| T2]), horizontal([RowNumber| RestRowNumbers])):- 
+  checkRow([H|T], RowNumber),
+  checkRows(T2, RestRowNumbers).
+
 checkRows([[H|T]| T2], [RowNumber| RestRowNumbers]):- 
-checkRow([H|T], RowNumber),
-checkRows(T2, RestRowNumbers).
+  checkRow([H|T], RowNumber),
+  checkRows(T2, RestRowNumbers).
 
-
+checkRows(Puzzle,Vertical).
+  
 
 /*check if the nuber in horizontal matches colums*/
 
@@ -137,11 +144,9 @@ checkColumn([['-'|T] | T2], [T, New], ColumnNumber) :- checkColumn(T2,New,Column
 
 /*Checking all Colomns*/
 checkColumns([[H] | T],[ColumnNumber]):- 
-  write('checking column 2'), nl,
   checkColumn([[H] | T], [], ColumnNumber).
 
 checkColumns(grid([[H] | T]),vertical([ColumnNumber])):- 
-  write('checking column 3'), nl,
   checkColumn([[H] | T], [], ColumnNumber).
 
 checkColumns(grid([[H|T] | T2]), vertical([ColumnNumber | RestColumnNumbers])):-
@@ -150,11 +155,9 @@ checkColumns(grid([[H|T] | T2]), vertical([ColumnNumber | RestColumnNumbers])):-
 
 checkColumns([[H|T] | T2], [ColumnNumber | RestColumnNumbers]):-
   checkColumn([[H|T], T2], NewPuzzle, ColumnNumber),
-  write('column checked 1'), nl,
   checkColumns(NewPuzzle, RestColumnNumbers).
 
-checkColumns(Puzzle,Column):-
-  write('  no matching function'), nl.
+checkColumns(Puzzle,Column).
 
 /*check leagal box*/
 
@@ -315,12 +318,11 @@ doSolve(battleships(size(X),Ships, Row, Column, Puzzle),battleships(size(X), Shi
   append(TempPuzzle, [VaterRow], TempPuzzle2),
   append([VaterRow], TempPuzzle2, NewPuzzle),
   checkColumns(Puzzle, Column),
-  write('Riktig 6 '), nl,
-  checkRow(Puzzle,Row),
+  checkRows(Puzzle,Row),
   write('Riktig 7 '), nl,
-  checkBoxes(NewPuzzle, NewPuzzle),
+  %%checkBoxes(NewPuzzle, NewPuzzle),
   write('Riktig 8 '),nl,
-  countShips(NewPuzzle, Ships),
+  %%countShips(NewPuzzle, Ships),
   write('Riktig 9 '), nl.
 
   

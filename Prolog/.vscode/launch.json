@@ -1,34 +1,57 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "name": "Adapter",
-        "type": "node",
-        "request": "launch",
-        "program": "${workspaceRoot}/src/features/prologDebugSession.ts",
-        "cwd": "${workspaceRoot}",
-        "args": ["--server=4711"],
-        "env": {
-          "NODE_ENV": "development"
-        },
-        "sourceMaps": true,
-        "outFiles": ["${workspaceRoot}/out/**/*.js"],
-        "console": "internalConsole"
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch via NPM",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run-script",
+        "debug"
+      ],
+      "port": 9229
+    },
+    {
+      "name": ".NET Core Attach",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": "${command:pickProcess}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program",
+      "program": "${workspaceFolder}/app.js"
+    },
+    {
+      "name": "Adapter",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceRoot}/src/features/prologDebugSession.ts",
+      "cwd": "${workspaceRoot}",
+      "args": ["--server=4711"],
+      "env": {
+        "NODE_ENV": "development"
       },
-      {
-        "name": "Extension",
-        "type": "extensionHost",
-        "request": "launch",
-        "runtimeExecutable": "${execPath}",
-        "args": ["--extensionDevelopmentPath=${workspaceRoot}"],
-        "sourceMaps": true,
-        "outFiles": ["${workspaceRoot}/out/**/*.js"]
-      }
-    ],
-    "compounds": [
-      {
-        "name": "Adapter+Extension",
-        "configurations": ["Adapter", "Extension"]
-      }
-    ]
-  }
+      "sourceMaps": true,
+      "outFiles": ["${workspaceRoot}/out/**/*.js"],
+      "console": "internalConsole"
+    },
+    {
+      "name": "Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": ["--extensionDevelopmentPath=${workspaceRoot}"],
+      "sourceMaps": true,
+      "outFiles": ["${workspaceRoot}/out/**/*.js"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Adapter+Extension",
+      "configurations": ["Adapter", "Extension"]
+    }
+  ]
+}

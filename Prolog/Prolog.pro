@@ -78,7 +78,7 @@ leagalDiagonal(P1,P2):-
     (vaterPart(P1),vaterPart(P2)).
 
 
-/*place new row of water on all sides of puzzle so tests can check borders*/
+/*place new row and column of water on all sides of puzzle so tests can check borders*/
 
 /*add rows*/
 
@@ -87,13 +87,13 @@ addRow([[_ | T] | _], ['-' | Retrun]):- addRow([T],Retrun).
 
 /*add coloms*/
 addColoms([[H|T]],[Return]) :- 
-    append([H|T],['-'], Temp),
-    append(['-'], Temp,Return).
+  append([H|T],['-'], Temp),
+  append(['-'], Temp,Return).
 
-addColoms([[H|T]|T2],[Return| T3]):-
-    append([H|T], ['-'], Temp),
-    append(['-'], Temp,Return),
-    addColoms(T2,T3).
+addColoms([[H|T]|T2],[Return | T3]):-
+  append([H|T], ['-'], Temp),
+  append(['-'], Temp,Return),
+  addColoms(T2,T3).
 
 /*check if the nuber in vertical matches Row*/
 
@@ -115,17 +115,17 @@ checkRows(T2, RestRowNumbers).
 /*checking single column*/
 checkColumn([[H]], [], 1):- not(H == '-').
 checkColumn([[H] | T], [] , ColumnNumber):-
-ColumnNumber > 0,
-not(H == '-'),
-ColumnNumber1 is ColumnNumber -1,
-checkColumn(T,[],ColumnNumber1).
+  ColumnNumber > 0,
+  not(H == '-'),
+  ColumnNumber1 is ColumnNumber -1,
+  checkColumn(T,[],ColumnNumber1).
 
 checkColumn([[H|T]], [T], 1) :- not(H == '-').
 checkColumn([[H|T] | T2], [T | New],ColumnNumber):- 
-ColumnNumber > 0,
-not(H == '-'),
-ColumnNumber1 is ColumnNumber -1,
-checkColumn(T2,New,ColumnNumber1).
+  ColumnNumber > 0,
+  not(H == '-'),
+  ColumnNumber1 is ColumnNumber -1,
+  checkColumn(T2,New,ColumnNumber1).
 
 checkColumn([['-']], [], 0).
 checkColumn([['-'], T], [], ColumnNumber):- checkColumn(T , [], ColumnNumber).
@@ -133,12 +133,11 @@ checkColumn([['-'|T]], [T], 0).
 checkColumn([['-'|T] | T2], [T, New], ColumnNumber) :- checkColumn(T2,New,ColumnNumber).
 
 /*Checking all Colomns*/
-checkColumns([[H | T], [ColumnNumber]]):- checkColumn([[H],T], [], ColumnNumber).
+checkColumns([[H | T], [ColumnNumber]]):- checkColumn([[H] | T], [], ColumnNumber).
 
-checkColumns([[H|T]|T2], [ColumnNumber | RestColumnNumbers]):-
-checkColumn([[H| T], T2], NewPuzzle, ColumnNumber),
-checkColumns(NewPuzzle, RestColumnNumbers).
-
+checkColumns([[H|T] | T2], [ColumnNumber | RestColumnNumbers]):-
+  checkColumn([[H|T], T2], NewPuzzle, ColumnNumber),
+  checkColumns(NewPuzzle, RestColumnNumbers).
 
 /*check leagal box*/
 
@@ -147,33 +146,33 @@ checkBox([['-','-','-'], ['-','*','-'], ['-','-','-']]).
 
 /*Horisontal*/
 checkBox([['-','-','-'], [Left,'+',Right], ['-','-','-']]):-
-shipPart(Left),shipPart(Right),
-legalHorizontal(Left, '+'),
-legalHorizontal('+',Right).
+  shipPart(Left),shipPart(Right),
+  legalHorizontal(Left, '+'),
+  legalHorizontal('+',Right).
 
 checkBox([['-','-','-'], [Left,Middle,Right], ['-','-','-']]):-
-not(Middle == '+'), shipPart(Middle), (shipPart(Left); shipPart(Right)),
-legalHorizontal(Left,Middle),
-legalHorizontal(Middle,Right).
+  not(Middle == '+'), shipPart(Middle), (shipPart(Left); shipPart(Right)),
+  legalHorizontal(Left,Middle),
+  legalHorizontal(Middle,Right).
 
 /*Verftical*/
 
 checkBox([['-',Top,'-'], ['-','+','-'], ['-',Bottom,'-']]):-
-shipPart(Top), shipPart(Bottom),
-leagalVertical(Top, '+'),
-leagalVertical('+', Bottom).
+  shipPart(Top), shipPart(Bottom),
+  leagalVertical(Top, '+'),
+  leagalVertical('+', Bottom).
 
 checkBox([['-',Top,'-'], ['-',Middle,'-'], ['-',Bottom,'-']]):-
-not(Middle == '+'), shipPart(Middle), (shipPart(Top); shipPart(Bottom)),
-leagalVertical(Top,Middle), 
-leagalVertical(Middle,Bottom).
+  not(Middle == '+'), shipPart(Middle), (shipPart(Top); shipPart(Bottom)),
+  leagalVertical(Top,Middle), 
+  leagalVertical(Middle,Bottom).
 
 /*Diagonal*/
-checkBox([[TopLeft,_, TopRight], [_, Middle, _], [BottomLeft,_,BottomRight]]):-
-leagalDiagonal(Middle,TopLeft),
-leagalDiagonal(Middle,TopRight),
-leagalDiagonal(Middle,BottomLeft),
-leagalDiagonal(Middle,BottomRight).
+checkBox([[TopLeft,_ , TopRight], [_, Middle, _], [BottomLeft,_,BottomRight]]):-
+  leagalDiagonal(Middle,TopLeft),
+  leagalDiagonal(Middle,TopRight),
+  leagalDiagonal(Middle,BottomLeft),
+  leagalDiagonal(Middle,BottomRight).
 
 
 /*Check all boxes for leagal placment*/
@@ -181,30 +180,30 @@ leagalDiagonal(Middle,BottomRight).
 
 /*checking corners or others that might hapend to apply*/
 checkBoxes(_, [['-',Top,'-'], [Left, Middle,'-'], ['-','-','-']]):-
-checkBox([['-',Top,'-'], [Left, Middle,'-'], ['-','-','-']]).
+  checkBox([['-',Top,'-'], [Left, Middle,'-'], ['-','-','-']]).
 
 checkBoxes(_, [[_,_,'-'], [_, '-','-'], ['-','-','-']]).
 
 checkBoxes(Puzzle,[[_, Top,TopRight | T1], [_,'-', Right | T2], ['-','-','-' | T3]]):- 
-checkBoxes(Puzzle,[[Top,TopRight| T1], ['-',Right | T2],['-','-' | T3]]).
+  checkBoxes(Puzzle,[[Top,TopRight| T1], ['-',Right | T2],['-','-' | T3]]).
 
 checkBoxes(Puzzle, [['-', Top,'-'] | T1], [Left,Middle,Right | T2], ['-','-','-' | T3]):-
-checkBox([['-',Top,'-'],[Left,Middle,Right],['-','-','-']]),
-checkBoxes(Puzzle,[[Top, '-' | T1], [Middle,Right | T2], ['-','-'|T3]]).
+  checkBox([['-',Top,'-'],[Left,Middle,Right],['-','-','-']]),
+  checkBoxes(Puzzle,[[Top, '-' | T1], [Middle,Right | T2], ['-','-'|T3]]).
 
 checkBoxes([_,PuzzleLine| PuzzleRest], [['-', Top, '-'],[Left,Middle,'-'],['-',Bottom,'-'] | _]):-
-checkBox([['-',Top, '-'],[Left, Middle, '-'],['-', Bottom,'-']]),
-checkBoxes([PuzzleLine | PuzzleRest], [PuzzleLine | PuzzleRest]).
+  checkBox([['-',Top, '-'],[Left, Middle, '-'],['-', Bottom,'-']]),
+  checkBoxes([PuzzleLine | PuzzleRest], [PuzzleLine | PuzzleRest]).
 
 checkBoxes([_,PuzzleLine| PuzzleRest],[[_,_,'-'], [_,'-','-'], [_,_,'-' ] | _]):-
-checkBoxes([PuzzleLine | PuzzleRest],[PuzzleLine | PuzzleRest]).
+  checkBoxes([PuzzleLine | PuzzleRest],[PuzzleLine | PuzzleRest]).
 
 checkBoxes(Puzzle, [['-',Top,'-' | T1], [Left,Middle,Right | T2], ['-',Bottom,'-' | T3] | Tail]):-
-checkBox([['-',Top,'-'],[Left,Middle,Right],['-',Bottom,'-']]),
-checkBoxes(Puzzle,[[Top, '-' | T1],[Middle, Right | T2],[Bottom, '-' | T3] | Tail]).
+  checkBox([['-',Top,'-'],[Left,Middle,Right],['-',Bottom,'-']]),
+  checkBoxes(Puzzle,[[Top, '-' | T1],[Middle, Right | T2],[Bottom, '-' | T3] | Tail]).
 
 checkBoxes(Puzzle,[[_, Top, TopRight | T1], [_,'-', Right | T2], [_,Bottom, BottomRight | T3] | Tail]):-
-checkBoxes(Puzzle,[[Top, TopRight | T1], ['-' , Right | T2], [Bottom, BottomRight | T3] | Tail]).
+  checkBoxes(Puzzle,[[Top, TopRight | T1], ['-' , Right | T2], [Bottom, BottomRight | T3] | Tail]).
 
 /* Get spesific puzzle box*/
 getBox([H], 1, H) :- !.
@@ -216,34 +215,33 @@ getBox([_ | T ], BoxToGet, Return):- BoxToGet1 is BoxToGet -1, getBox(T,BoxToGet
 setValue([_],   1, Box, [Box]):- !.
 setValue([_|T], 1, Box, [Box| T]) :- !.
 setValue([H|T], BoxToChange, Box, Return):- 
-BoxToChange > 1,
-BoxToChange1 is BoxToChange -1,
-setValue(T, BoxToChange1, Box, OldValue),
-append([H], OldValue, Return).
+  BoxToChange > 1,
+  BoxToChange1 is BoxToChange -1,
+  setValue(T, BoxToChange1, Box, OldValue),
+  append([H], OldValue, Return).
 
 /*Get Column*/
 getColumn([[FirstBox|RestBoxes]], ColumnToGet, [ThisRow]):-
-!, getBox([FirstBox | RestBoxes], ColumnToGet, ThisRow).
+  !, getBox([FirstBox | RestBoxes], ColumnToGet, ThisRow).
 getColumn([[FirstBox | RestBoxes] | RestOfRows], ColumnToGet, [ThisRow | BoxInLaterRows]):-
-getColumn(RestOfRows, ColumnToGet, BoxInLaterRows),
-getBox([FirstBox| RestBoxes], ColumnToGet, ThisRow).
+  getColumn(RestOfRows, ColumnToGet, BoxInLaterRows),
+  getBox([FirstBox| RestBoxes], ColumnToGet, ThisRow).
 
 
 /*Get Size of ship*/
-
 getShipSize(['V'], [], 1).
 getShipSize(['A' | T], Remaining, Size):-
-!, getShipSize(T, Remaining, Result),
-Size is Result + 1.
+  !, getShipSize(T, Remaining, Result),
+  Size is Result + 1.
 
 getShipSize(['>'], [], 1).
 getShipSize(['<' | T], Remaining, Size):-
-!, getShipSize(T, Remaining, Result),
-Size is Result + 1.
+  !, getShipSize(T, Remaining, Result),
+  Size is Result + 1.
 
 getShipSize(['+' | T], Remaining, Size):- 
-!, getShipSize(T, Remaining, Result),
-Size is Result + 1.
+  !, getShipSize(T, Remaining, Result),
+  Size is Result + 1.
 
 /*Get lenght of list*/
 lenghtOfList([], 0):- !.
@@ -268,53 +266,60 @@ countShips([['V' | T] | T2], Ships):- !, countShips([T|T2], Ships).
 countShips([['>' | T] | T2], Ships):- !, countShips([T|T2], Ships).
 
 countShips([['A' | T] | T2], Ships):-
-!, findNumber([['A' | T]| T2], Number),
-getColumn(T2, Number, Column),
-getShipSize(['A' | Column], _ ,Size),
-getBox(Ships, Size, NumberOfSizeShip),
-NumberOfSizeShip > 0,
-NumberOfSizeShip1 is NumberOfSizeShip - 1,
-setValue(Ships,Size,NumberOfSizeShip1,NewShipList),
-countShips([T | T2], NewShipList).
+  !, findNumber([['A' | T]| T2], Number),
+  getColumn(T2, Number, Column),
+  getShipSize(['A' | Column], _ ,Size),
+  getBox(Ships, Size, NumberOfSizeShip),
+  NumberOfSizeShip > 0,
+  NumberOfSizeShip1 is NumberOfSizeShip - 1,
+  setValue(Ships,Size,NumberOfSizeShip1,NewShipList),
+  countShips([T | T2], NewShipList).
 
 countShips([['<' | T] | T2], Ships):-
-!, findNumber([['<' | T]| T2], Number),
-getColumn(T2, Number, Column),
-getShipSize(['<' | Column], _ ,Size),
-getBox(Ships, Size, NumberOfSizeShip),
-NumberOfSizeShip > 0,
-NumberOfSizeShip1 is NumberOfSizeShip - 1,
-setValue(Ships,Size,NumberOfSizeShip1,NewShipList),
-countShips([T | T2], NewShipList).
+  !, findNumber([['<' | T]| T2], Number),
+  getColumn(T2, Number, Column),
+  getShipSize(['<' | Column], _ ,Size),
+  getBox(Ships, Size, NumberOfSizeShip),
+  NumberOfSizeShip > 0,
+  NumberOfSizeShip1 is NumberOfSizeShip - 1,
+  setValue(Ships,Size,NumberOfSizeShip1,NewShipList),
+  countShips([T | T2], NewShipList).
 
 countShips([['*' | T], T2], Ships):- 
-!, getBox(Ships,1, NumberOfShips),
-NumberOfShips > 0,
-NewNumberOfShips is NumberOfShips -1,
-setValue(Ships, 1 ,NewNumberOfShips, NewShipList),
-countShips([T| T2], NewShipList).
+  !, getBox(Ships,1, NumberOfShips),
+  NumberOfShips > 0,
+  NewNumberOfShips is NumberOfShips -1,
+  setValue(Ships, 1 ,NewNumberOfShips, NewShipList),
+  countShips([T| T2], NewShipList).
 
-doSolve(battleships(size(X),Ships,Row,Column,Puzzle),battleships(size(X), Ships,Row,Column,Puzzle)):-
-  write('Riktig'),nl,
-  
+doSolve(battleships(size(X),Ships, Row, Column, Puzzle),battleships(size(X), Ships, Row, Column, Puzzle)):-
+  write('Riktig 1 '),nl,
   addColoms(Puzzle, TempPuzzle),
+  write('Riktig 2 '),nl,
   addRow(TempPuzzle, VaterRow),
-  write('Riktig 2'),
+  write('Riktig 3 '), nl,
   append(TempPuzzle, [VaterRow], TempPuzzle2),
-  append([VaterRow], TempPuzzle2, NewPuzzle).
-  /*
+  write('Riktig 4 '),nl,
+  append([VaterRow], TempPuzzle2, NewPuzzle),
+  write('Riktig 5 '), nl,
   checkColumns(Puzzle, Column),
+  write('Riktig 6 '), nl,
   checkRow(Puzzle,Row),
+  write('Riktig 7 '), nl,
   checkBoxes(NewPuzzle, NewPuzzle),
-  countShips(NewPuzzle, Ships),!.
-*/
+  write('Riktig 8 '),nl,
+  countShips(NewPuzzle, Ships),
+  write('Riktig 9 '), nl,
+  writeGrid(NewPuzzle),!.
+  %%writeFullOutput(battleships(size(X),Ships, Row, column, NewPuzzle)), !.
   
 doSolve(Solution,Solution):-
-  write('Test this '), nl.
+  write('FeilFeilFeil'), nl.
 
 /********************* writing the result */
-writeFullOutput(battleships(size(N),_,_,_,Grid)):- 
-  write('size '), write(N), write('x'), write(N), nl, write(Grid).
+writeFullOutput(battleships(size(N),_,_,_,grid(Puzzle))):- 
+  write('size '), write(N), write('x'), write(N), nl, writeGrid(Puzzle).
+
 
 writeGrid([]).
 writeGrid([E|R]):- writeGridLine(E), writeGrid(R).
@@ -322,6 +327,7 @@ writeGrid([E|R]):- writeGridLine(E), writeGrid(R).
 writeGridLine([]):- nl.
 writeGridLine([E|R]):- E='?', !, write(E), write(' '), writeGridLine(R).
 writeGridLine([E|R]):- write(E), write(' '), writeGridLine(R).
+
 
 /********************** reading the input */
 readProblem(battleships(size(N),boats(B),horizontal(H),vertical(V),grid(Grid))):- 
@@ -387,4 +393,3 @@ solveProblems(N):- N>0, readProblem(P), doSolve(P,S), writeFullOutput(S), !, N1 
 
 :- run.
 :- halt.
-

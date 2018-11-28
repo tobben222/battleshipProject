@@ -87,11 +87,11 @@ addRow([[_ | T] | _], ['-' | Retrun]):-
   addRow([T],Retrun).
 
 /*add coloms*/
-addColoms(grid([[H|T]]),[Return]) :- 
+addColoms(grid([[H|T]]),[Return]):- 
   append([H|T],['-'], Temp),
   append(['-'], Temp,Return).
 
-addColoms(grid([[Head | Tail] | Tail2]), [NewRow | Tail3]) :-
+addColoms(grid([[Head | Tail] | Tail2]), [NewRow | Tail3]):-
   append([Head | Tail], ['-'], TempRow),
   append(['-'], TempRow, NewRow),
   addColoms(grid(Tail2), Tail3).
@@ -324,7 +324,6 @@ doSolve(battleships(size(X),Ships, Row, Column, Puzzle),battleships(size(X), Shi
   write('Riktig 8 '),nl,
   %%countShips(NewPuzzle, Ships),
   write('Riktig 9 '), nl.
-
   
 doSolve(Solution,Solution):-
   write('ErrorErrorError'), nl.

@@ -81,7 +81,6 @@ leagalDiagonal(P1,P2):-
 /*place new row and column of water on all sides of puzzle so tests can check borders*/
 
 /*add rows*/
-
 addRow([[_] | _], ['-']).
 addRow([[_ | T] | _], ['-' | Retrun]):- 
   addRow([T],Retrun).
@@ -96,7 +95,7 @@ addColoms(grid([[Head | Tail] | Tail2]), [NewRow | Tail3]) :-
   append(['-'], TempRow, NewRow),
   addColoms(grid(Tail2), Tail3).
 
-addColoms(Puzzle,Puzzle).
+addColoms(Puzzle,vertical).
 
 /*check if the nuber in vertical matches Row*/
 
@@ -117,7 +116,7 @@ checkRows([[H|T]| T2], [RowNumber| RestRowNumbers]):-
   checkRow([H|T], RowNumber),
   checkRows(T2, RestRowNumbers).
 
-checkRows(Puzzle,Vertical).
+checkRows(Puzzle,Horisontal).
   
 
 /*check if the nuber in horizontal matches colums*/
@@ -195,6 +194,7 @@ checkBox([[TopLeft,_ , TopRight], [_, Middle, _], [BottomLeft,_,BottomRight]]):-
   leagalDiagonal(Middle,BottomLeft),
   leagalDiagonal(Middle,BottomRight).
 
+checkBox(PuzzleLine,PuzzleLine).
 
 /*Check all boxes for leagal placment*/
 /*Note: Directions are for visualisation purposes and might not mean what they say*/
@@ -257,6 +257,12 @@ setValue([H|T], BoxToChange, Box, Return):-
   setValue(T, BoxToChange1, Box, OldValue),
   append([H], OldValue, Return).
 
+setValue(grid([H|T]), BoxToChange, Box, Return):- 
+  BoxToChange > 1,
+  BoxToChange1 is BoxToChange -1,
+  setValue(T, BoxToChange1, Box, OldValue),
+  append([H], OldValue, Return).
+
 /*Get Column*/
 getColumn([[FirstBox|RestBoxes]], ColumnToGet, [ThisRow]):-
   !, getBox([FirstBox | RestBoxes], ColumnToGet, ThisRow).
@@ -298,11 +304,22 @@ findNumber([[_ | T], [_ | T2] |  T3], Return):-findNumber([T, T2 | T3], Return),
 
 countShips([],0):- !.
 countShips([['-' | T]], Ships):- !, countShips([T],Ships).
+countShips(grid([['-' | T]]), Ships):- !, countShips([T],Ships).
+
 countShips([['-']| T], Ships):- !, countShips(T,Ships).
+countShips(grid([['-']| T]), Ships):- !, countShips(T,Ships).
+
 countShips([['-' | T] | T2], Ships):- !, countShips([T|T2], Ships).
+countShips(grid([['-' | T] | T2]), Ships):- !, countShips([T|T2], Ships).
+
 countShips([['+' | T] | T2], Ships):- !, countShips([T|T2], Ships).
+countShips(grid([['+' | T] | T2]), Ships):- !, countShips([T|T2], Ships).
+
 countShips([['V' | T] | T2], Ships):- !, countShips([T|T2], Ships).
+countShips(grid([['V' | T] | T2]), Ships):- !, countShips([T|T2], Ships).
+
 countShips([['>' | T] | T2], Ships):- !, countShips([T|T2], Ships).
+countShips(grid([['>' | T] | T2]), Ships):- !, countShips([T|T2], Ships).
 
 countShips([['A' | T] | T2], Ships):-
   !, findNumber([['A' | T]| T2], Number),
@@ -314,7 +331,7 @@ countShips([['A' | T] | T2], Ships):-
   setValue(Ships,Size,NumberOfSizeShip1,NewShipList),
   countShips([T | T2], NewShipList).
 
-countShips(vertical([['A' | T] | T2]), Ships):-
+countShips(grid([['A' | T] | T2]), Ships):-
   !, findNumber([['A' | T]| T2], Number),
   getColumn(T2, Number, Column),
   getShipSize(['A' | Column], _ ,Size),
@@ -334,7 +351,7 @@ countShips([['<' | T] | T2], Ships):-
   setValue(Ships,Size,NumberOfSizeShip1,NewShipList),
   countShips([T | T2], NewShipList).
 
-countShips(horizontal([['<' | T] | T2]), Ships):-
+countShips(grid([['<' | T] | T2]), Ships):-
   !, findNumber([['<' | T]| T2], Number),
   getColumn(T2, Number, Column),
   getShipSize(['<' | Column], _ ,Size),
@@ -371,10 +388,8 @@ doSolve(battleships(size(X),Ships, Row, Column, Puzzle), battleships(size(X), Sh
   write('Riktig 7 '), nl,
   checkBoxes(NewPuzzle, NewPuzzle),
   write('Riktig 8'), nl,
-  countShips(NewPuzzle, Ships).
+  countShips(NewPuzzle, Ships),!.
 
-  
-  
 doSolve(Solution,Solution):-
   write('ErrorErrorError'), nl.
 

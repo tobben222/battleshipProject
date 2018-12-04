@@ -201,37 +201,31 @@ checkBox([[TopLeft,_ , TopRight], [_, Middle, _], [BottomLeft,_,BottomRight]]):-
 
 /*checking corners or others that might hapend to apply*/
 
-checkBoxes([],0):-!.
+checkBoxes([],0).
 
 checkBoxes(_, [[_,_,'-'], [_, '-','-'], ['-','-','-']]).
 
 checkBoxes(_, [['-',Top,'-'], [Left, Middle,'-'], ['-','-','-']]):-
   checkBox([['-',Top,'-'], [Left, Middle,'-'], ['-','-','-']]).
-checkBoxes(grid(_), horizontal([['-',Top,'-'], [Left, Middle,'-'], ['-','-','-']])):-
-  checkBox([['-',Top,'-'], [Left, Middle,'-'], ['-','-','-']]).
+
 
 checkBoxes(Puzzle,[[_, Top,TopRight | T1], [_,'-', Right | T2], ['-','-','-' | T3]]):- 
   checkBoxes(Puzzle,[[Top,TopRight| T1], ['-',Right | T2],['-','-' | T3]]).
-checkBoxes(grid(Puzzle), horizontal([[_, Top,TopRight | T1], [_,'-', Right | T2], ['-','-','-' | T3]])):- 
+checkBoxes(grid(Puzzle), [[_, Top,TopRight | T1], [_,'-', Right | T2], ['-','-','-' | T3]]):- 
   checkBoxes(Puzzle,[[Top,TopRight| T1], ['-',Right | T2],['-','-' | T3]]).
 
 checkBoxes(Puzzle, [['-', Top,'-'] | T1], [Left,Middle,Right | T2], ['-','-','-' | T3]):-
   checkBox([['-',Top,'-'],[Left,Middle,Right],['-','-','-']]),
   checkBoxes(Puzzle,[[Top, '-' | T1], [Middle,Right | T2], ['-','-'|T3]]).
-checkBoxes(grid(Puzzle), horizontal([['-', Top,'-'] | T1]), horizontal([Left,Middle,Right | T2]), horizontal(['-','-','-' | T3])):-
+checkBoxes(grid(Puzzle), [['-', Top,'-'] | T1], horizontal([Left,Middle,Right | T2]), ['-','-','-' | T3]):-
   checkBox([['-',Top,'-'],[Left,Middle,Right],['-','-','-']]),
   checkBoxes(Puzzle,[[Top, '-' | T1], [Middle,Right | T2], ['-','-'|T3]]).
 
 checkBoxes([_,PuzzleLine| PuzzleRest], [['-', Top, '-'],[Left,Middle,'-'],['-',Bottom,'-'] | _]):-
   checkBox([['-',Top, '-'],[Left, Middle, '-'],['-', Bottom,'-']]),
-  checkBoxes([PuzzleLine | PuzzleRest], grid([PuzzleLine | PuzzleRest])).
-checkBoxes(grid([_,PuzzleLine| PuzzleRest]), horizontal([['-', Top, '-'],[Left,Middle,'-'],['-',Bottom,'-'] | _])):-
-  checkBox([['-',Top, '-'],[Left, Middle, '-'],['-', Bottom,'-']]),
   checkBoxes([PuzzleLine | PuzzleRest], [PuzzleLine | PuzzleRest]).
 
 checkBoxes([_,PuzzleLine| PuzzleRest],[[_,_,'-'], [_,'-','-'], [_,_,'-' ] | _]):-
-  checkBoxes([PuzzleLine | PuzzleRest],[PuzzleLine | PuzzleRest]).
-checkBoxes(grid([_,PuzzleLine| PuzzleRest]), horizontal([[_,_,'-'], [_,'-','-'], [_,_,'-' ] | _])):-
   checkBoxes([PuzzleLine | PuzzleRest],[PuzzleLine | PuzzleRest]).
 
 checkBoxes(Puzzle, [['-',Top,'-' | T1], [Left,Middle,Right | T2], ['-',Bottom,'-' | T3] | Tail]):-
@@ -243,8 +237,10 @@ checkBoxes(grid(Puzzle), horizontal([['-',Top,'-' | T1], [Left,Middle,Right | T2
 
 checkBoxes(Puzzle,[[_, Top, TopRight | T1], [_,'-', Right | T2], [_,Bottom, BottomRight | T3] | Tail]):-
   checkBoxes(Puzzle,[[Top, TopRight | T1], ['-' , Right | T2], [Bottom, BottomRight | T3] | Tail]).
-checkBoxes(grid(Puzzle),horizontal([[_, Top, TopRight | T1], [_,'-', Right | T2], [_,Bottom, BottomRight | T3] | Tail])):-
+checkBoxes(grid(Puzzle), horizontal([[_, Top, TopRight | T1], [_,'-', Right | T2], [_,Bottom, BottomRight | T3] | Tail])):-
   checkBoxes(Puzzle,[[Top, TopRight | T1], ['-' , Right | T2], [Bottom, BottomRight | T3] | Tail]).
+
+checkBoxes(Puzzle, Puzzle).
 
 /* Get spesific puzzle box*/
 getBox([H], 1, H) :- !.
@@ -318,7 +314,27 @@ countShips([['A' | T] | T2], Ships):-
   setValue(Ships,Size,NumberOfSizeShip1,NewShipList),
   countShips([T | T2], NewShipList).
 
+countShips(vertical([['A' | T] | T2]), Ships):-
+  !, findNumber([['A' | T]| T2], Number),
+  getColumn(T2, Number, Column),
+  getShipSize(['A' | Column], _ ,Size),
+  getBox(Ships, Size, NumberOfSizeShip),
+  NumberOfSizeShip > 0,
+  NumberOfSizeShip1 is NumberOfSizeShip - 1,
+  setValue(Ships,Size,NumberOfSizeShip1,NewShipList),
+  countShips([T | T2], NewShipList).
+
 countShips([['<' | T] | T2], Ships):-
+  !, findNumber([['<' | T]| T2], Number),
+  getColumn(T2, Number, Column),
+  getShipSize(['<' | Column], _ ,Size),
+  getBox(Ships, Size, NumberOfSizeShip),
+  NumberOfSizeShip > 0,
+  NumberOfSizeShip1 is NumberOfSizeShip - 1,
+  setValue(Ships,Size,NumberOfSizeShip1,NewShipList),
+  countShips([T | T2], NewShipList).
+
+countShips(horizontal([['<' | T] | T2]), Ships):-
   !, findNumber([['<' | T]| T2], Number),
   getColumn(T2, Number, Column),
   getShipSize(['<' | Column], _ ,Size),
@@ -335,6 +351,15 @@ countShips([['*' | T], T2], Ships):-
   setValue(Ships, 1 ,NewNumberOfShips, NewShipList),
   countShips([T| T2], NewShipList).
 
+countShips(grid([['*' | T], T2]), Ships):- 
+  !, getBox(Ships,1, NumberOfShips),
+  NumberOfShips > 0,
+  NewNumberOfShips is NumberOfShips -1,
+  setValue(Ships, 1 ,NewNumberOfShips, NewShipList),
+  countShips([T| T2], NewShipList).
+
+countShips(Puzzle, Ships).
+
 doSolve(battleships(size(X),Ships, Row, Column, Puzzle), battleships(size(X), Ships, Row, Column, Puzzle)):-
   addColoms(Puzzle, TempPuzzle),
   addRow(TempPuzzle, VaterRow),
@@ -342,10 +367,13 @@ doSolve(battleships(size(X),Ships, Row, Column, Puzzle), battleships(size(X), Sh
   append([VaterRow], TempPuzzle2, NewPuzzle),
   checkColumns(Puzzle, Column),
   checkRows(Puzzle,Row),
-  %writeGrid(NewPuzzle),
-  write('Riktig 7 '), nl.
-  %checkBoxes(NewPuzzle, NewPuzzle).
-  %countShips(NewPuzzle, Ships),
+  writeGrid(NewPuzzle), nl,
+  write('Riktig 7 '), nl,
+  checkBoxes(NewPuzzle, NewPuzzle),
+  write('Riktig 8'), nl,
+  countShips(NewPuzzle, Ships).
+
+  
   
 doSolve(Solution,Solution):-
   write('ErrorErrorError'), nl.
@@ -353,7 +381,6 @@ doSolve(Solution,Solution):-
 /********************* writing the result */
 writeFullOutput(battleships(size(N),_,_,_,grid(Puzzle))):- 
   write('size '), write(N), write('x'), write(N), nl, writeGrid(Puzzle).
-
 
 writeGrid([]).
 writeGrid([E|R]):- writeGridLine(E), writeGrid(R).

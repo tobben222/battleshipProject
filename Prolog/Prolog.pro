@@ -87,14 +87,14 @@ addRow([[_ | T] | _], ['-' | Retrun]):-
   addRow([T],Retrun).
 
 /*add coloms*/
-addColoms(grid([[H|T]]),[Return]) :- 
+addColoms([[H|T]],[Return]) :- 
   append([H|T],['-'], Temp),
   append(['-'], Temp,Return).
 
-addColoms(grid([[Head | Tail] | Tail2]), [NewRow | Tail3]) :-
+addColoms([[Head | Tail] | Tail2], [NewRow | Tail3]) :-
   append([Head | Tail], ['-'], TempRow),
   append(['-'], TempRow, NewRow),
-  addColoms(grid(Tail2), Tail3).
+  addColoms(Tail2, Tail3).
 
 addColoms(Puzzle,Puzzle).
 
@@ -108,10 +108,6 @@ checkRow(['-'| T], RowNumber):- checkRow(T,RowNumber).
 /*Checking all rows*/
 checkRows([[H|T]],[RowNumber]):-
    checkRow([H,T], RowNumber).
-
-checkRows(grid([[H|T]| T2]), horizontal([RowNumber| RestRowNumbers])):- 
-  checkRow([H|T], RowNumber),
-  checkRows(T2, RestRowNumbers).
 
 checkRows([[H|T]| T2], [RowNumber| RestRowNumbers]):- 
   checkRow([H|T], RowNumber),
@@ -143,15 +139,9 @@ checkColumn([['-'|T]], [T], 0).
 checkColumn([['-'|T] | T2], [T, New], ColumnNumber) :- checkColumn(T2,New,ColumnNumber).
 
 /*Checking all Colomns*/
+
 checkColumns([[H] | T],[ColumnNumber]):- 
   checkColumn([[H] | T], [], ColumnNumber).
-
-checkColumns(grid([[H] | T]),vertical([ColumnNumber])):- 
-  checkColumn([[H] | T], [], ColumnNumber).
-
-checkColumns(grid([[H|T] | T2]), vertical([ColumnNumber | RestColumnNumbers])):-
-  checkColumn([[H|T], T2], NewPuzzle, ColumnNumber),
-  checkColumns(NewPuzzle, RestColumnNumbers).
 
 checkColumns([[H|T] | T2], [ColumnNumber | RestColumnNumbers]):-
   checkColumn([[H|T], T2], NewPuzzle, ColumnNumber),
@@ -312,22 +302,45 @@ countShips([['*' | T], T2], Ships):-
   setValue(Ships, 1 ,NewNumberOfShips, NewShipList),
   countShips([T| T2], NewShipList).
 
-doSolve(battleships(size(X),Ships, Row, Column, Puzzle),battleships(size(X), Ships, Row, Column, Puzzle)):-
+doSolve(battleships(size(X),boats(Ships), horizontal(Row), vertical(Column), grid(Puzzle)),battleships(size(X),boats(Ships), horizontal(Row), vertical(Column), grid(Puzzle))):-
+  extractList(Ships,1,ShipsList),
+  write('test'),
   addColoms(Puzzle, TempPuzzle),
   addRow(TempPuzzle, VaterRow),
   append(TempPuzzle, [VaterRow], TempPuzzle2),
   append([VaterRow], TempPuzzle2, NewPuzzle),
   checkColumns(Puzzle, Column),
   checkRows(Puzzle,Row),
-  write('Riktig 7 '), nl,
-  %%checkBoxes(NewPuzzle, NewPuzzle),
-  write('Riktig 8 '),nl,
-  %%countShips(NewPuzzle, Ships),
-  write('Riktig 9 '), nl.
+  checkBoxes(NewPuzzle, NewPuzzle),
+  countShips(NewPuzzle, ShipsList),
+  !.
 
   
 doSolve(Solution,Solution):-
   write('ErrorErrorError'), nl.
+
+
+extractList(List,Index,Return):-
+  countall(List,Index,C),
+  delete(List,Index,List2),
+  Index1 is Index+1,
+  pushFront(C,ReturnList,Return),
+  extractList(List2,Index1,ReturnList).
+
+extractList([],X,Return).
+
+count([],X,0).
+count([X|T],X,Y):- count(T,X,Z), Y is 1+Z.
+count([X1|T],X,Z):- X1\=X,count(T,X,Z).
+
+countall(List,X,C) :-
+  sort(List,List1),
+  member(X,List1),
+  count(List,X,C).
+
+pushFront(Item, [], [Item]).
+pushFront(Item, List, [Item|List]).
+
 
 /********************* writing the result */
 writeFullOutput(battleships(size(N),_,_,_,grid(Puzzle))):- 
